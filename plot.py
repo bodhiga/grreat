@@ -1,6 +1,9 @@
 import seaborn as sns
 from matplotlib import pyplot as plt
 
+
+sns.color_palette("tab10")
+
 def subplot():
     fig, ax = plt.subplots(1, 2,
                            sharey='all',
@@ -11,7 +14,8 @@ def subplot():
 
 
 def category(df, x, y, title=None, xlabel=None, ylabel=None, hue=None, ax=None,targets=None):
-    sns.set_theme(style='whitegrid')
+    # sns.set_theme(style='whitegrid')
+    sns.color_palette("tab10")
     order_by = None
     if x is not None:
         # import pdb; pdb.set_trace()
