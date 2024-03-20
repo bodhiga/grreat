@@ -488,7 +488,7 @@ def process(adf,hdf,cidf,csdf,bdf):
 
             figure_name = '_'.join(['indicator_{}'.format(name)] + list(cols))
             figure_path = './output/figures/{}.png'.format(figure_name)
-            g.savefig(figure_path)
+            g.savefig(figure_path,dpi=300)
 
             if(len(cols) >= 2):
                 ctdf = table.crosstab(result2, "indicator", cols[0], cols[1:])
@@ -841,7 +841,7 @@ def gei_breakdown(df):
                 fig =sns_plot.figure
 
                 figure_name="./output/figures/gei_breakdown_{region}_{key}.png".format(region=region, key=key)
-                fig.savefig(figure_name)
+                fig.savefig(figure_name,dpi=300)
                 filtered_data.to_excel('./output/gei_breakdown_{region}_{key}.xlsx'.format(region=region, key=key))
 
     gei_breakdown_result = pd.concat(output2)
