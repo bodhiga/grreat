@@ -17,6 +17,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         # NOTE dict format as such:
         # "indicator_name": {
         #    "dataframe": df,
+        #    "endline_dataframe": df,
         #    "func": callable(df),
         #    "targets": ("disaggregation_column1", "disaggregation_column2"): {
         #        "disaggregation_column1_value": {
@@ -50,6 +51,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1000c": {
             "func": adolescents.indicator_1000,
             "dataframe": adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))], # GIRLS ONLY! BUG looks like the baseline was calculated with both boys and girls?
+            "endline_dataframe": adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))], # TODO Replace this with the endline dataframe
             "percent": False,
             "targets": {
                 (): [0.582, 0.582 * 1.1],
@@ -70,6 +72,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1100a": {
             "dataframe": hdf.drop_duplicates(subset="Q_3"),
+            "endline_dataframe": hdf.drop_duplicates(subset="Q_3"), # TODO replace with endline dataframe
             "func": health.indicator_1100a,
             "percent": True,
             "targets": {
@@ -82,6 +85,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1100b": {
             "dataframe": csdf,
+            "endline_dataframe": csdf, # TODO Replace with endline dataframe
             "func": satisfaction.indicator_1100b,
             "percent": True,
             "targets": {
@@ -102,6 +106,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1113": {
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO Replace with endline dataframe
             "func": adolescents.indicator_1113,
             "percent": True,
             "targets": {
@@ -115,6 +120,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1200a": {
             "dataframe": cidf,
+            "endline_dataframe": cidf, # TODO Replace with endline dataframe
             "func": influencers.indicator_1200a,
             "percent": True,
             "targets": {
@@ -140,6 +146,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1200b": {
             "dataframe": adf[adf["agegroup"] != "0-9"],
+            "endline_dataframe": adf[adf["agegroup"] != "0-9"], # TODO replace with endline dataframe
             "func": adolescents.indicator_1200b,
             "percent": True,
             "targets": {
@@ -170,6 +177,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1200b_baseline": {
             "dataframe": bdf[bdf["agegroup"] != "0-9"],
+            "endline_dataframe": bdf[bdf["agegroup"] != "0-9"], # TODO Replace with endline dataframe
             "func": baseline.indicator_1200b,
             "percent": True,
             "targets": {
@@ -201,6 +209,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1210": {
             "func": adolescents.indicator_1210,
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO Replace with endline dataframe
             "percent": True,
             "targets": {
                 (): [0.764, 0.764 * 1.1],
@@ -230,6 +239,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
             # to draw any conclusions from this data
             "func": adolescents.indicator_1220a,
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO Replace with endline dataframe
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -256,6 +266,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1220a_hiv": {
             "func": adolescents.indicator_1220hiv,
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO Replace with endline dataframe
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -282,6 +293,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1220a_fp": {
             "func": adolescents.indicator_1220fp,
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO Replace with endline dataframe
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -309,6 +321,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1220a_nutri": {
             "func": adolescents.indicator_1220nutri,
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO replace with endline dataframe
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -339,6 +352,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
             # to draw any conclusions from this data
             "func": adolescents.indicator_1220ab,
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO Replace with endline dataframe
             "percent": True,
             "targets": {
                 (): [0.147, 0.147 * 1.1],
@@ -356,6 +370,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1300b": {
             "func": adolescents.indicator_1300b,
             "dataframe": adf,
+            "endline_dataframe": adf, # TODO Replace with endline dataframe
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -410,15 +425,18 @@ def process(adf,hdf,cidf,csdf,bdf):
             assert type(cols) == tuple
 
             df = indicator["dataframe"]
+            edf = indicator["endline_dataframe"] # TODO should be endline_df
 
             values = indicator["targets"][cols]
             sequences = _target_gen(values)
 
             for seq in sequences:
                 filtered_df = df
+                filtered_edf = edf
                 for idx, x in enumerate(seq[:-1]):
                     col = cols[idx]
                     filtered_df = filtered_df.loc[filtered_df[col] == x]
+                    filtered_edf = filtered_edf.loc[filtered_edf[col] == x]
 
                 [baseline, pmf_target] = seq[-1]
                 midline_target = (baseline + pmf_target) / 2
@@ -433,17 +451,22 @@ def process(adf,hdf,cidf,csdf,bdf):
                 print('Baseline {bl}, midline target: {m} and PMF target: {pmf}'.format(bl=baseline, pmf=pmf_target, m=midline_target))
 
                 result = f(filtered_df)
-                pmf_test_results = analysis.ttest(result, pmf_target, alternative=alternative)
+                eresult = f(filtered_edf)
+                pmf_test_results = analysis.ttest(eresult, pmf_target, alternative=alternative)
                 midline_test_results = analysis.ttest(result, midline_target, alternative=alternative)
-                mean = result.mean()
+                mean = eresult.mean()
 
                 print('Mean: {mu}, p-value (Midline target): {mp} p-value (PMF): {p}'.format(mu=mean, p=pmf_test_results.pvalue, mp=midline_test_results.pvalue))
                 print()
             pass
 
             result = f(df)
+            eresult = f(edf)
             result2 = pd.concat([result, df[list(cols)]], axis=1)
+            eresult2 = pd.concat([result, edf[list(cols)]], axis=1)
             result2["indicator"] = result2[0]
+            eresult2["indicator"] = eresult2[0]
+
             if indicator["percent"]:
                 result2["indicator"] = result2["indicator"].apply(lambda x: x * 100)
 
@@ -452,10 +475,10 @@ def process(adf,hdf,cidf,csdf,bdf):
             if len(cols) >= 2:
                 hue = cols[1]
 
-            g, _axes = plot.subplot()
+            g, _axes = plot.subplot() # TODO Needs a 2?
             _axes[0].set_title("Baseline")
             _axes[1].set_title("Midline")
-            #g.suptitle('Indicator {}'.format(name))
+            _axes[2].set_title("Endline")
 
             baseline_data = []
             all_targets = []
@@ -464,7 +487,6 @@ def process(adf,hdf,cidf,csdf,bdf):
 
             for seq in target_list:
                 baseline_data.append(seq[0:-1] + [seq[-1][0]])
-
                 all_targets.append([(seq[-1][0] + seq[-1][1])/2,seq[-1][1]])
 
             baseline_df = pd.DataFrame(baseline_data,
@@ -482,16 +504,22 @@ def process(adf,hdf,cidf,csdf,bdf):
                                     hue=hue,
                                     ax=_axes[1],
                                     targets=all_targets)
+            endline = plot.category(eresult2, x, "indicator",
+                                    title='Inidicator {}'.format(name),
+                                    hue=hue, ax=_axes[2],
+                                    targets=all_targets,
+                                    )
 
             _axes[0].set(ylabel="")
             _axes[1].set(ylabel="")
+            _axes[2].set(ylabel="")
 
             figure_name = '_'.join(['indicator_{}'.format(name)] + list(cols))
             figure_path = './output/figures/{}.png'.format(figure_name)
             g.savefig(figure_path,dpi=300)
 
             if(len(cols) >= 2):
-                ctdf = table.crosstab(result2, "indicator", cols[0], cols[1:])
+                ctdf = table.crosstab(eresult2, "indicator", cols[0], cols[1:])
                 table.crosstab_to_xlsx(ctdf, "./output/data/{}.xlsx".format(figure_name))
         print()
 

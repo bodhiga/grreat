@@ -123,7 +123,6 @@ def indicator_1000_categories(df):
     Following baseline methodology, respondents will be scored on a scale of 1 to 50;
     the percentage of points scored equates to the empowerment level, within three categories."""
 
-
     def _education_score(row):
             # BUG!!! If you're not a student you get zero points here
             # gen grl_ecoemp6=1 if QN6=="Ndiyo" | QN8=="Nimemaliza elimu ya msingi"| QN8=="Nimemaliza kidato cha nne" | QN8a=="HAKUMALIZA  ELIMU  YA  MSINGI" | QN8a=="SIJAMALIZA ELIMU YA MSINGI"
@@ -141,11 +140,6 @@ def indicator_1000_categories(df):
         }:
             results = 1
         return results
-
-
-
-
-
 
     _empowerment = {
         "economic_empowerment": {

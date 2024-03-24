@@ -11,7 +11,7 @@ def load(file_path):
         'Unguja (Zanzibar)': 'Zanzibar',
     }
 
-    df['regions'] = df['Q_5'].map(regions)
+    df['regions'] = df['Q_5'].map(regions) # ENDLINE 1. Mkoa/Eneo la utafiti
 
 
     def _age_to_agegroup(age):
@@ -24,9 +24,9 @@ def load(file_path):
         else:
             return ">19"
 
-    df['age'] = df['Q_10']
+    df['age'] = df['Q_10'] # ENDLINE 6. Umri wa mhojiwa
     df['agegroup'] = df['age'].map(_age_to_agegroup)
-    df['sex'] = df["Q_20"]
+    df['sex'] = df["Q_20"] # ENDLINE Sex is taken from the file name
     df['gender_support'] = df['Q_3']
     return df
 

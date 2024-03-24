@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 sns.color_palette("tab10")
 
 def subplot():
-    fig, ax = plt.subplots(1, 2,
+    fig, ax = plt.subplots(1, 3,
                            sharey='all',
                            figsize=(10,5),
                            )
