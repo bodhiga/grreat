@@ -12,7 +12,7 @@ import analysis as analysis
 import table as table
 import plot as plot
 
-def get_targets(adf,hdf, cidf, csdf,bdf):
+def get_targets(adf, eadf, hdf, cidf, csdf, ecsdf,bdf):
     return {
         # NOTE dict format as such:
         # "indicator_name": {
@@ -51,7 +51,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1000c": {
             "func": adolescents.indicator_1000,
             "dataframe": adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))], # GIRLS ONLY! BUG looks like the baseline was calculated with both boys and girls?
-            "endline_dataframe": adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))], # TODO Replace this with the endline dataframe
+            "endline_dataframe": eadf.loc[(eadf["sex"] == "Female") & (eadf['agegroup'].isin(['10-14', '15-19']))], # TODO Replace this with the endline dataframe
             "percent": False,
             "targets": {
                 (): [0.582, 0.582 * 1.1],
@@ -85,7 +85,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1100b": {
             "dataframe": csdf,
-            "endline_dataframe": csdf, # TODO Replace with endline dataframe
+            "endline_dataframe": ecsdf,
             "func": satisfaction.indicator_1100b,
             "percent": True,
             "targets": {
@@ -106,7 +106,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1113": {
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO Replace with endline dataframe
+            "endline_dataframe": eadf,
             "func": adolescents.indicator_1113,
             "percent": True,
             "targets": {
@@ -146,7 +146,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         },
         "1200b": {
             "dataframe": adf[adf["agegroup"] != "0-9"],
-            "endline_dataframe": adf[adf["agegroup"] != "0-9"], # TODO replace with endline dataframe
+            "endline_dataframe": eadf[eadf["agegroup"] != "0-9"], # TODO replace with endline dataframe
             "func": adolescents.indicator_1200b,
             "percent": True,
             "targets": {
@@ -209,7 +209,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1210": {
             "func": adolescents.indicator_1210,
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO Replace with endline dataframe
+            "endline_dataframe": eadf,
             "percent": True,
             "targets": {
                 (): [0.764, 0.764 * 1.1],
@@ -239,7 +239,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
             # to draw any conclusions from this data
             "func": adolescents.indicator_1220a,
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO Replace with endline dataframe
+            "endline_dataframe": eadf,
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -266,7 +266,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1220a_hiv": {
             "func": adolescents.indicator_1220hiv,
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO Replace with endline dataframe
+            "endline_dataframe": eadf,
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -293,7 +293,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1220a_fp": {
             "func": adolescents.indicator_1220fp,
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO Replace with endline dataframe
+            "endline_dataframe": eadf,
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -321,7 +321,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1220a_nutri": {
             "func": adolescents.indicator_1220nutri,
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO replace with endline dataframe
+            "endline_dataframe": eadf,
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -352,7 +352,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
             # to draw any conclusions from this data
             "func": adolescents.indicator_1220ab,
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO Replace with endline dataframe
+            "endline_dataframe": eadf,
             "percent": True,
             "targets": {
                 (): [0.147, 0.147 * 1.1],
@@ -370,7 +370,7 @@ def get_targets(adf,hdf, cidf, csdf,bdf):
         "1300b": {
             "func": adolescents.indicator_1300b,
             "dataframe": adf,
-            "endline_dataframe": adf, # TODO Replace with endline dataframe
+            "endline_dataframe": eadf,
             "percent": True,
             "targets": {
                 ("regions",): {
@@ -400,8 +400,8 @@ def _target_gen(indict, acc = None):
     else:
         yield acc + [indict]
 
-def process(adf,hdf,cidf,csdf,bdf):
-    _targets = get_targets(adf,hdf,cidf,csdf,bdf)
+def process(adf,eadf,hdf,cidf,csdf,ecsdf,bdf):
+    _targets = get_targets(adf,eadf,hdf,cidf,csdf,ecsdf,bdf)
 
 
     for name, indicator in _targets.items():
@@ -450,8 +450,8 @@ def process(adf,hdf,cidf,csdf,bdf):
                 print('Running analysis on {indicator}: {cols} - {seq}'.format(indicator=name, cols=cols, seq=seq[:-1]))
                 print('Baseline {bl}, midline target: {m} and PMF target: {pmf}'.format(bl=baseline, pmf=pmf_target, m=midline_target))
 
-                result = f(filtered_df)
-                eresult = f(filtered_edf)
+                result = f(filtered_df, endline=False)
+                eresult = f(filtered_edf, endline=True)
                 pmf_test_results = analysis.ttest(eresult, pmf_target, alternative=alternative)
                 midline_test_results = analysis.ttest(result, midline_target, alternative=alternative)
                 mean = eresult.mean()
@@ -460,10 +460,10 @@ def process(adf,hdf,cidf,csdf,bdf):
                 print()
             pass
 
-            result = f(df)
-            eresult = f(edf)
+            result = f(df, endline=False)
+            eresult = f(edf, endline=True)
             result2 = pd.concat([result, df[list(cols)]], axis=1)
-            eresult2 = pd.concat([result, edf[list(cols)]], axis=1)
+            eresult2 = pd.concat([eresult, edf[list(cols)]], axis=1)
             result2["indicator"] = result2[0]
             eresult2["indicator"] = eresult2[0]
 

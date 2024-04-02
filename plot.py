@@ -18,7 +18,6 @@ def category(df, x, y, title=None, xlabel=None, ylabel=None, hue=None, ax=None,t
     sns.color_palette("tab10")
     order_by = None
     if x is not None:
-        # import pdb; pdb.set_trace()
         order_by = df[x].unique().tolist()
         order_by.sort()
 

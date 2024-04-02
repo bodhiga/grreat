@@ -15,15 +15,15 @@ def _bloom(df):
 
     return df.apply(_categorise)
 
-def _count_strings(row):
+def _count_strings(row, endline):
     """Used with apply on a dataframe. Counts selected values (they are 0.0) if not selected"""
     n = 0
     for _, val in row.items():
-        if isinstance(val, str):
+        if (isinstance(val, str) and not endline) or val == 1:
             n += 1
     return n
 
-def load(file_path):
+def load(file_path, endline=False):
     def _age_to_agegroup(age):
         if age < 10:
             return "0-9"
@@ -34,17 +34,22 @@ def load(file_path):
         else:
             return ">19"
 
-    def date_to_age(born):
-        today = dt.datetime(2022, 8, 12) # Day data collection started
+    def date_to_age(born, endline=False):
+        today = dt.datetime(2022, 8, 12) # Day data collection started # TODO Add date data collection started
         return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
-    df = pd.read_spss(file_path)
+    df = None
+    if endline:
+        df = pd.read_excel(file_path)
+    else:
+        df = pd.read_spss(file_path)
     # Collapse Zanzibar into one region
     regions = {
         'Mbeya': 'Mbeya',
         'Songwe': 'Songwe',
         'Pemba (Zanzibar)': 'Zanzibar',
         'Unguja (Zanzibar)': 'Zanzibar',
+        'Zanzibar': 'Zanzibar',
     }
 
     from collections import defaultdict
@@ -100,16 +105,19 @@ def load(file_path):
         "Kipangani": "urban",
     })
 
-    df['regions'] = df['Q_3'].map(regions)
-    df['sex'] = df['Q_21']
-    df['age'] = df['Q_8'].map(date_to_age)
+    df['regions'] = df[('Q_3' if not endline else '1. Mkoa')].map(regions)
 
-    df['schooling'] = df['Q_9']
-    df['occupation'] = df['Q_15']
-    df['education'] = df['Q_11']
-    df['setting'] = df['Q_5'].map(_settings_map)
+    _sexmap = ({'Male': 'Male',
+               'Female': 'Female'} if not endline else {'Mke': 'Female', 'Mme': 'Male'})
+    df['sex'] = df[('Q_21' if not endline else '14. Jinsia')].map(_sexmap)
 
-    print(df['setting'].head())
+    df['age'] = df[('Q_8' if not endline else '5. Tarehe ya kuzaliwa')].map(lambda x: date_to_age(x, endline))
+
+    df['schooling'] = df[('Q_9' if not endline else '6. Bado unasoma')] # TODO map here
+    df['occupation'] = df['Q_15' if not endline else '10. Unajishughulisha na nini?'] # TODO map here
+    df['education'] = df['Q_11' if not endline else '8. Kama jibu ni Hapana, kiwango chako cha elimu cha juu ni kipi?'] # TODO map here
+    df['setting'] = df['Q_5' if not endline else '3. Kata unayoishi'].map(_settings_map)
+
     # Remove everyone whose age is not provided
     # df = df[df['age'] > 0]
 
@@ -117,17 +125,17 @@ def load(file_path):
 
     return df
 
-def indicator_1000_categories(df):
+def indicator_1000_categories(df, endline):
     """Average score of the Girls Empowerment Index
 
     Following baseline methodology, respondents will be scored on a scale of 1 to 50;
     the percentage of points scored equates to the empowerment level, within three categories."""
 
-    def _education_score(row):
+    def _education_score(row, endline):
             # BUG!!! If you're not a student you get zero points here
             # gen grl_ecoemp6=1 if QN6=="Ndiyo" | QN8=="Nimemaliza elimu ya msingi"| QN8=="Nimemaliza kidato cha nne" | QN8a=="HAKUMALIZA  ELIMU  YA  MSINGI" | QN8a=="SIJAMALIZA ELIMU YA MSINGI"
         results = 0
-        if row["Q_9"] == "No" or row["Q_11"] in {
+        _answers = { # TODO Which question does this correspond to?
                 "Primary school completed",
                 "A-Level completed",
                 "Primary school completed",
@@ -137,7 +145,19 @@ def indicator_1000_categories(df):
                 "O-Level completed + vocational training completed",
                 "A-Level completed + vocational training completed",
                 "University",
-        }:
+        }
+        _endline_answers = {
+            "Nimemaliza elimu ya msingi",
+            "Nimemaliza kidato cha nne",
+            "Nimemaliza kidato cha sita",
+            "Mafunzo ya ufundi",
+            "Nimemaliza elimu ya msingi na mafunzo ya ufundi",
+            "Nimemaliza kidato cha nne na mafunzo ya ufundi",
+            "Nimemaliza kidato cha sita na mafunzo ya ufundi",
+            "Chuo kikuu",
+            "Mafunzo mengine kama ujasiriamali, kutengeneza bidhaa n.k",
+        }
+        if row[("Q_9" if not endline else "6. Bado unasoma")] == ("No" if not endline else "Hapana") or row[("Q_11" if not endline else "9. Ungependa usome mpaka ngazi gani ya elimu?")] in (_answers if not endline else _endline_answers):
             results = 1
         return results
 
@@ -667,11 +687,226 @@ def indicator_1000_categories(df):
 
     }
 
+    _endline_empowerment = {
+        "economic_empowerment": {
+            "9. Ungependa usome mpaka ngazi gani ya elimu?": {
+                'Angalau nimalize elimu ya msingi;',
+                "Elimu ya juu (Shahada ya uzamili na PhD's);",
+                'Elimu ya juu (Shahada);',
+                'Nimalize kidato cha nne',
+                'Kidato cha sita',
+                # 'Nisimalize elimu ya msingi;', # BUG should be secondary school?
+                },
+            "18. Je! Ungetaka kuweka akiba katika siku zijazo?": { # TODO BUG
+                'Ndio',
+            },
+            "20. Umeshawahi kuweka akiba ya pesa kupitia njia hizi au mahali pengine popote?": # A_Q_28_1 etc
+                {
+                    'Akaunti ya benki',#Column BJ, DENOTED AS 0 FOR NO and 1 for YES
+                    'Mitandao ya simu (Airtel money, Tigopesa ,Mpesa)', #Column BK
+                    'Vikoba Saccos nk', #Column BL
+                    'Vibubu', # table banks, Column BM
+                    'vikundi vidogo', # piggy banks, Column BN
+                    'Kwa wazazi wangu / ndugu / marafiki / msiri wangu', # Parents/sibling/partners Column BO
+                    #  7, # No # BUG  # NOTE I've removed no from here
+                 },
+            "23. Je! Umewahi kukopa pesa kutoka kwa makundi haya au mahali pengine popote?": [
+                '23. Je! Umewahi kukopa pesa kutoka kwa makundi haya au mahali pengine popote?/Benki', # Column CN- bank account
+                '23. Je! Umewahi kukopa pesa kutoka kwa makundi haya au mahali pengine popote?/Mitandao ya simu ( Airtel fedha, Tigopesa , Mpesa nk) ', # Mpesa Column CO
+                '23. Je! Umewahi kukopa pesa kutoka kwa makundi haya au mahali pengine popote?/Vikoba, Saccos nk ', # Column CP
+                '23. Je! Umewahi kukopa pesa kutoka kwa makundi haya au mahali pengine popote?/Vibubu', # Column CQ
+                '23. Je! Umewahi kukopa pesa kutoka kwa makundi haya au mahali pengine popote?/Makundi / vikundi vidogo', # Column CR
+                # 'Makundi / vikundi vidogo', # Column CR
+            ],
+            "25. Je, Unataka kuwa nani / kufanya nini ukiwa mkubwa?": { # everything except farmer
+                'Accountant',
+                'Mfanyabiashara',
+                'Daktari/Nurse',
+                'Engineer/Architect',
+                'Mwanasheria ',
+                'Nyingine',
+                'Politician',
+                'Mwanajeshi/Askari',
+                'Mwalimu'
+            },
+            "education_1000": _education_score,
+            # BUG!!! If you're not a student you get zero points here
+        },
+        "political_participation": {
+            "68. Wasichana/ wanawake wanaweza kuwa viongozi wazuri mashuleni, kwenye jamii, familia n.k au washiriki katika uongozi wa kamati za vikundi au jamii/ shule kama vile wanaume": { # BUG NOTE There is a question missing
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "69. Wavulana/wanaume mashuleni, kwenye familia /jamii na ngazi ya nchi huwa ni viongozi wazuri kuliko wasichana/ wanawake": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "71. Wasichana/ wanawake wanahaki ya kushiriki katika siasa.( wachaguliwe kama viongozi wa kisiasa, wapiga kura n.k) kama wavulana/ wanaume": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "72. Ninahisi kwamba nimehusishwa katika utoaji wa maamuzi utakaoniathiri mimi. Mfano nilikuwa na fursa ya kuelezea maoni au mapenedekezo kwenye shule / jamii/vilabu vya michezo/ social clubs/Saccos nilizohudhuria na maoni yangu yalisikilizwa na kusikika.": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "73. Kwa kawaida / mara nyingine ninashiriki katika mazungumzo ya kaya / shuleni/ au kwenye jamii": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "74. Kwa kawaida au mara nyingine naongea na wazazi, washirika, waalimu, jamii n.k na mara nyingine ninahimiza katika utoaji wa maamuzi.": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "76. Nina shauku kubwa ya kuwa kiongozi baadae kama vile kiongozi wa darasa, dada/kaka mkuu wa shule, kiongozi wa jamii au kiongozi wa siasa": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "77. Je unafahamu/unapata nafasi katika mpango wowote wa kuwawezesha wasichana/wavulana kuwa viongozi au kupata mbinu za uongozi": { 'Ndiyo' }, # yes
+            "81. Ulishawahi kupiga kura kuchagua kiongozi (kama Vile kwenye familia, shuleni au kwenye jamii?)": { 'Ndiyo' }, # yes
+            "82. Katika miezi 12 iliyopita ulishawahi kupiga kura ya kumchagua kiongozi (kama vile kwenye familia yako, shulemi au kweney jamii)": { 'Ndiyo' }, # yes
+            "84. Je una mawazo yoyote kuhusu namna gani vijana wanaweza kuhusishwa kupanga, kuandaa na kutekeleza huduma bora ya afya katika jamii": { 'Ndiyo' }, # yes
+        },
+        "violence_against_women": {
+            "47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana": [ # TODO check if 1 or "1"
+                '47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Polisi', # police, Column EN with 1 being Yes, Question 47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Polisi
+                '47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Mstari wa kusaidia watoto', # child helpline, Comumn EQ wih 1 being Yes, Question 47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Mstari wa kusaidia watoto
+            ],
+            "86. Inakubalika kwa mvulana / mwanaume kumdhalilisha, kumtishia au kumtukana msichana/mwanamke asiyemtii?": {
+                'Sikubali kiasi', # Partly disagree
+                'Sikubali kabisa', # Strongly disagree
+            },
+            "87. Inakubalika kwa mvulana/ mwanaume kuwa na tabia za umiliki ( kudhibiti maamuzi na shughuli za rafiki wa kike / mke sababu tu ni rafiki yake wa kike au mke wake)": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "88. Inakubalika Kwa mvulana / mwanaume kudhibiti mienendo ya rafiki wa kike / mke kwa sababu tu ni Rafiki yake wa kike au mke wake": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "89. Inakubalika kwa mvulana / mwanaume kulazimisha mtu kubusiana, kushikana , Kujamiiana bila ridhaa yake": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "90. Inakubalika kwa mvulana / mwanaume kutoa maneno kwa msichana/mwanamke ya kumfanya adhalilike kijinsia au asijiskie vizuri": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "91. Inakubalika kwa mvulana/ mwanaume kuwa na udhibiti wote kwenye pesa na rasilimali zote za uchumi za rafiki wa kike / mke": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+        },
+        "self_confidence": {
+            "27. Je wewe ni mwanachama wa club yeyote ya majadiliano shuleni, kwenye jamii? Je ulishawahi kufanya majadiliano shuleni au kuzungumza katika mikutano ya kijamii, kanisani/msikitini au mikutano ya kifamilia?": { 'Ndiyo' }, # yes
+            "28. Je ulishawahi kupewa fursa ya kutoa maoni yako kwenye familia au mikutano ya kijamii": { 'Ndiyo' }, # yes
+            "48. Kwa ujumla, nimeridhika na mimi mwenyewe": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "49. Wakati mwingine nadhani mimi sifai hata kidogo": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "50. Ninahisi nina sifa kadhaa nzuri": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "51. Nina uwezo wa kufanya vitu kama watu wengine": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "62. Ni jukumu la msichana kuepuka kupata mimba": { # TODO Was Q_67, check it
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "53. Ninahisi kuwa mimi ni mtu wa thamani, angalau kwenye usawa mmoja na wengine": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "54. Natamani ningeweza kuheshimiwa zaidi.": { # BUG! NOTE I've swapped these backwards
+                'Sikubali kabisa',
+                'Sikubali kiasi',
+            },
+            "55. Kwa ujumla, huwa nahisi mimi ni mtu wa kushindwa": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "56. Nina mtazamo chanya juu yangu": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "30 a) Unywaji wa Pombe sio mzuri kwa watu chini ya miaka 18": {
+                'Nakubali kabisa',
+                'Nakubali  kiasi',
+            },
+            "30 b) Unywaji wa pombe kupita kiasi ni hatari kwa mtu yeyote bila kujali umri wake": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "30 c) Uvutaji wa sigara ma matumizi ya madawa kama khat( mirungi), marijuana( bangi), heroin au cocaine ni hatari kwa mtu yeyote bila kujali umri.": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            "31. Je! Umewahi kunywa pombe": {
+                'Hapana',
+            },
+            "33. Je una rafiki/ marafiki anae/ wanao kunywa pombe": {
+                'Hapana',
+            },
+             "34. Ulishawahi kuvuta sigara": {
+                 'Hapana',
+            },
+            "35. Ulishawahi kutumia madawa kama mirungi, bangi, cocaine au heroin?": {
+                'Hapana',
+            },
+            "36. Je una marafiki wanaovuta au kutumia madawa kama mirungi, bangi, heroin au cocaine?": {
+                'Hapana',
+            },
+        },
+        "srhr_nutrition_knowledge": {
+            "106. Ndoa kwa mtoto mdogo (chini ya miaka 18) ni mila mbaya": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+            # TODO Check if '1' or 1
+            "108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inamsaidia kukaa vizuri kusaikolojia na kupunguza uwezekano wa kupata msongo wa mawazo kwa msichana": [
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Ni fursa ya kuongeza elimu kwa msichana',
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Ni fursa ya kuweza kuolewa na mtu anayefaa baadae', # Column IC
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inazuia msichana asinyanyapaliwe, kukejeliwa na kusemwa na marafiki, familia na jamii kwa ujumla', # Column ID
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Ni fursa kwa msichana kupata mtoto na kuanzisha familia kwa muda unaofaa akiwa ameshakomaa', # Column IE
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inamkinga msichana dhidi ya matatizo ya uzazi kama vile fistula, kuzaa mtoto mwenye matatizo ya ubongo na kifo kitokanacho na mimba au kujifungua', # Column IF
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inamsaidia kukaa vizuri kusaikolojia na kupunguza uwezekano wa kupata msongo wa mawazo kwa msichana', # Column IG
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inawezesha wasichana kupata watoto wenye afya hapo baadae', # Column IH # TODO NOTE CHECK THIS
+                '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inmuepusha msichana na magonjwa ya zinaa pamoja na HIV, na magonjwa ya saratani', # Column II
+            ],
+            "109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?": [
+                '109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?/Kituo cha Afya', # health centre (Kituo cha Afya) Column IM
+            ],
+            "120. Lishe bora ni muhimu kwa wasichana toka muda anazaliwa ili iweze kuwasaidia kupata watoto wenye afya hapo baadaye": {
+                'Nakubaliana kabisa',
+                'Nakubaliana kiasi',
+            },
+            "126b. Je mtu anaweza kupunguza hatari ya kupata maambukizi ya VVU kwa kutumia kondomu kila anapo jamiiana?": {
+                'Ndio',
+            },
+            "126c. Je mtu anaweza kupata maambukizi ya VVU kwa kula chakula na mtu mwenye maambukizi?": {
+                'Ndio',
+            },
+            "126d. Je Mtu mwenye afya nzuri anaweza kuwa na VVU": {
+                'Hapana',
+            },
+            "126e.  Je mtu anaweza kupata VVU kwa kung’atwa na mbu?": {
+                'Hapana',
+            },
+        }
+    }
+
     results = pd.DataFrame()
 
     _debug_answer_is_present_at_least_once = set()
 
-    for empowerment_domain, questions in _empowerment.items():
+    _items = (_empowerment if not endline else _endline_empowerment).items()
+    for empowerment_domain, questions in _items:
         def _domain_score(row):
             """The GEI score for the domain
             Calculated by counting each valid answer as one point,
@@ -694,7 +929,7 @@ def indicator_1000_categories(df):
                                 already_counted = True
                                 score += 1
                 elif callable(v):
-                    score += v(row)
+                    score += v(row, endline)
 
             return 100 * (score / len(questions.keys()))
 
@@ -709,15 +944,15 @@ def indicator_1000_categories(df):
     # print(df[_debug_missing].head())
     return results
 
-def indicator_1000(df):
-    results = indicator_1000_categories(df)
+def indicator_1000(df, endline):
+    results = indicator_1000_categories(df, endline)
 
     # Finally calculate each rows girls empowerment index value by taking the average of the 5 domains
     girls_empowerment_index = results[list(results.keys())].mean(axis=1).apply(lambda x: x / 100)
 
     return girls_empowerment_index
 
-def _total_acc(row):
+def _total_acc(row, endline):
     # egen total_acc=rowtotal(QN19b QN19c QN19d QN19e QN19f QN19g)
     # gen total_acc_scores=1 if total_acc>0 & total_acc<=5
     _q = [
@@ -728,35 +963,56 @@ def _total_acc(row):
         'A_Q_26_5',
         'A_Q_26_98'
     ]
-    x = _count_strings(row[_q])
+    _q_endline = [
+        '19. Unamiliki, ni mwanachama au ungependa kuwa mwanachama wa taasisi yoyote kati ya hizi/Akaunti ya benki', #Bank Column BB
+        '19. Unamiliki, ni mwanachama au ungependa kuwa mwanachama wa taasisi yoyote kati ya hizi/Mitandao ya simu (Airtel, Tigopesa, Mpesa nk)',
+        '19. Unamiliki, ni mwanachama au ungependa kuwa mwanachama wa taasisi yoyote kati ya hizi/Vikoba, Saccosetc',
+        '19. Unamiliki, ni mwanachama au ungependa kuwa mwanachama wa taasisi yoyote kati ya hizi/Vibubu',
+        '19. Unamiliki, ni mwanachama au ungependa kuwa mwanachama wa taasisi yoyote kati ya hizi/Makundi / vikundi vidogo',
+        '19. Unamiliki, ni mwanachama au ungependa kuwa mwanachama wa taasisi yoyote kati ya hizi/Mengine'
+    ]
+
+    x = _count_strings(row[(_q if not endline else _q_endine)], endline)
     if x > 0 and x <= 5: # BUG?
         return 1
     return 0
 
-def _grl_ecoemp3(row):
+def _grl_ecoemp3(row, endline):
     _q = ['A_Q_28_1',
           'A_Q_28_2',
           'A_Q_28_3',
           'A_Q_28_4',
           'A_Q_28_5']
 
-    if _count_strings(row[_q]) > 0:
+    _q_endline = ['20. Umeshawahi kuweka akiba ya pesa kupitia njia hizi au mahali pengine popote?/Akaunti ya benki', #COLUMN BJ
+                  '20. Umeshawahi kuweka akiba ya pesa kupitia njia hizi au mahali pengine popote?/Mitandao ya simu (Airtel money, Tigopesa ,Mpesa)',
+                  '20. Umeshawahi kuweka akiba ya pesa kupitia njia hizi au mahali pengine popote?/Vikoba Saccos nk',
+                  '20. Umeshawahi kuweka akiba ya pesa kupitia njia hizi au mahali pengine popote?/Vibubu',
+                  '20. Umeshawahi kuweka akiba ya pesa kupitia njia hizi au mahali pengine popote?/Makundi / vikundi vidogo']
+
+    if _count_strings(row[(_q if not endline else _q_endline)], endline) > 0:
         return 1
     return 0
 
-def _anemia_preve(row):
-    x = _count_strings(row[_anemia_prevention_answers])
+def _anemia_preve(row, endline):
+    x = _count_strings(row[(_anemia_prevention_answers if not endline else _anemia_prevention_answers_endline)])
     if x >= 3 and x <=6:
         return 1
     return 0
 
-def _facility_cat(row):
+def _facility_cat(row, endline):
     # BUG! The answers here are probably wrong
-    if isinstance(row['A_Q_140_1'], str) or isinstance(row['A_Q_140_2'], str):
-        return 1
+    if endline:
+        _c = '118. Utaenda wapi kutafuta huduma ya virutubisho vya mwili na msaada ikitokea unahuitaji? ● Dawa za hospitali za kuongeza damu, mizizi lishe, matunda, mbegu lishe n.k/Kituo cha afya'
+        _c2 = '118. Utaenda wapi kutafuta huduma ya virutubisho vya mwili na msaada ikitokea unahuitaji? ● Dawa za hospitali za kuongeza damu, mizizi lishe, matunda, mbegu lishe n.k/Wazazi / Ndugu/Marafiki/siri'
+        if row[_c] == 1 or row[_c2] == 1:
+            return 1
+    else:
+        if isinstance(row['A_Q_140_1'], str) or isinstance(row['A_Q_140_2'], str):
+            return 1
     return 0
 
-def indicator_1000_v2(df):
+def indicator_1000_v2(df, endline):
     def _domain_score(qs, row):
         """The GEI score for the domain
         Calculated by counting each valid answer as one point,
@@ -784,28 +1040,43 @@ def indicator_1000_v2(df):
 
         return (score / len(qs.keys()))
 
-    def _expedom_viol_scores2(row):
+    def _expedom_viol_scores2(row, endline):
 #        egen expedom_viol_scores=rowtotal(QN47b QN47c QN47d QN47e QN47g)
         # BUG This is wrong! Wrong answers
-        x = ["A_Q_61_2", "A_Q_61_3", "A_Q_61_4", "A_Q_61_5", "A_Q_61_7"]
-        if _count_strings(row[x]) >= 2:
+        _x = ["A_Q_61_2", "A_Q_61_3", "A_Q_61_4", "A_Q_61_5", "A_Q_61_7"]
+        _x_endline = [
+            "47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Mume, rafiki wa kiume au mpenzi",
+            "47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Rafiki au jirani",
+            "47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Mwalimu",
+            "47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Polisi",
+            "47. Ni wapi wewe au rafiki zako mtatoa taarifa za unyanyasaji dhidi ya wasichana/Mstari wa kusaidia watoto"
+        ]
+
+        if _count_strings(row[(_x if not endline else _x_endline)], endline) >= 2:
             return 1
         return 0
 
-    def _hiv_trans_scores2(row):
-        score = _domain_score({
-                'T_Q_151_1': { 'Yes' },
-                'T_Q_151_2': { 'Yes' },
-                'T_Q_151_3': { 'Yes' },
-                'T_Q_151_4': { 'No' },
-                'T_Q_151_5': { 'No' },
-            }, row)
+    def _hiv_trans_scores2(row, endline):
+        _q = {
+            'T_Q_151_1': { 'Yes' },
+            'T_Q_151_2': { 'Yes' },
+            'T_Q_151_3': { 'Yes' },
+            'T_Q_151_4': { 'No' },
+            'T_Q_151_5': { 'No' },
+        }
+        _q_endline = {
+            '126a. Je inawezekana kupunguza hatari ya kusambaa kwa maambukizi ya VVU kwa kujamiiana na mwenza mmoja asiye na maambukizi, na hana wenza wengine?': { 'Ndio' },
+            '126b. Je mtu anaweza kupunguza hatari ya kupata maambukizi ya VVU kwa kutumia kondomu kila anapo jamiiana?': { 'Ndio' },
+            '126d. Je Mtu mwenye afya nzuri anaweza kuwa na VVU': { 'Ndio' },
+            '126e.  Je mtu anaweza kupata VVU kwa kung’atwa na mbu?': { 'Hapana' },
+            '126c. Je mtu anaweza kupata maambukizi ya VVU kwa kula chakula na mtu mwenye maambukizi?': { 'Hapana' },
+        }
+        score = _domain_score((_q if not endline else _q_endline), row)
         if score == 1:
             return 1
         return 0
 
-        _
-    def _preq_prevent(row):
+    def _preq_prevent(row, endline):
          _q = ['A_Q_132_1',
                'A_Q_132_2',
                'A_Q_132_3',
@@ -816,12 +1087,24 @@ def indicator_1000_v2(df):
                'A_Q_132_8',
                'A_Q_132_9',
                'A_Q_132_10']
-         n = _count_strings(row[_q])
+
+         _q_endline = ['113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kondom',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Vidonge vya kuzuia mimb/majira',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Vidonge vya dharura vya kuzuia mimba/ P2',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kitanzi',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Sindano',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Vipandikizi',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kutokujamiiana',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kunyonyesha',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kutumia kalenda',
+                       '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kumwaga pembeni /withdraw']
+
+         n = _count_strings(row[(_q if not endline else _q_endline)], endline)
          if n >= 3:
              return 1
          return 0
 
-    _dimensions = {
+    _dimensions_midline = {
         "self_perception": {
             "Q_63": {
                 'Strongly agree',
@@ -886,17 +1169,17 @@ def indicator_1000_v2(df):
             'T_Q_108_8': {
                 'No'
             },
-            "expedom_viol_scores2": lambda x: _expedom_viol_scores2(x),
+            "expedom_viol_scores2": lambda x: _expedom_viol_scores2(x, endline),
         },
         'access_to_and_control_over_resources': {
-            "grl_ecoemp3": _grl_ecoemp3,
+            "grl_ecoemp3": lambda x: _grl_ecoemp3(x, endline),
             "Q_25": {
                 'Yes',
             },
             "Q_24": {
                 'Yes',
             },
-            "total_acc": _total_acc,
+            "total_acc": lambda x: _total_acc(x, endline),
         },
         "decision_and_influence": {
             "Q_85": {
@@ -964,6 +1247,150 @@ def indicator_1000_v2(df):
         }
     }
 
+    _dimensions_endline = {
+        "self_perception": {
+            "48. Kwa ujumla, nimeridhika na mimi mwenyewe": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "49. Wakati mwingine nadhani mimi sifai hata kidogo": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "50. Ninahisi nina sifa kadhaa nzuri5": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "51. Nina uwezo wa kufanya vitu kama watu wengine": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "52. Ninahisi sina mengi ya kujivunia.": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "53. Ninahisi kuwa mimi ni mtu wa thamani, angalau kwenye usawa mmoja na wengine": { # BUG! NOTE I've swapped these backwards
+                'Sikubali kabisa',
+                'Sikubali kiasi',
+            },
+            "54. Natamani ningeweza kuheshimiwa zaidi.": {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "55. Kwa ujumla, huwa nahisi mimi ni mtu wa kushindwa": {
+                'Nakubali sana',
+                'Nakubali kiasi',
+            },
+            "79. Ninajiamini kwamba ninaweza kukabiliana na matukio yasiyotarajiwa": {
+                'Ndiyo',
+            },
+            "80. Kama nikipatwa na tatizo naweza kutafuta suluhisho": {
+                'Ndiyo',
+            },
+            '57. Kwa kiwango gani unakubali au kukataa sentensi ifuatayo? Kazi ya mwanaume ni kutafuta/ kupata pesa, mwanamke kazi yake ni kuangalia nyumba na familia': {
+                'Sikubali kiasi',
+                'Sikubali kabisa',
+            },
+            "37. Kwa kiwango gani unakubali au kukataa na sentensi zifuatazo?   Ninaamini nina uhuru wa kutembea( naweza kutembea kutoka kijiji kimoja hadi kingine/ nina uhuru wa kwenda shuleni mwenyewe)": {
+                'Nakubali kabisa',
+                'Nakubali kiasi',
+            },
+        },
+        "personal_freedom": {
+            '92a asipomtii mume / rafiki wa kiume na ndugu na jamaa wengine': {
+                'Hapana'
+            },
+            '92b Akihisi kua sio muaminifu': {
+                'Hapana'
+            },
+            '93c akitelekeza watoto': {
+                'Hapana'
+            },
+            '92d Akitumia pesa na rasilimali zingine kama chakula bila ruhusa': {
+                'Hapana'
+            },
+            '92h Akitoka bila kumwambia': {
+                'Hapana'
+            },
+            "expedom_viol_scores2": lambda x: _expedom_viol_scores2(x, endline),
+        },
+        'access_to_and_control_over_resources': {
+            "grl_ecoemp3": lambda x: _grl_ecoemp3(x, endline),
+            # "18. Je! Ungetaka kuweka akiba katika siku zijazo?": {
+            #     'Ndio',
+            # },
+            "17. Je! Unafikiri kuweka akiba ni muhimu?": {
+                'Ndio',
+            },
+            "total_acc": lambda x: _total_acc(x, endline),
+        },
+        "decision_and_influence": {
+            "70. Wasichana/ wanawake wanaweza wakafanya maamuzi mazuri kuhusiana na chochote pamoja na maamuzi kwenye rasilimali( fedha,muda) shuleni, kwenye jamii, familia n.k kama vile wavulana/ wanaume wanavyoweza": {
+                'Nakubali kabisa',
+            },
+            "71. Wasichana/ wanawake wanahaki ya kushiriki katika siasa.( wachaguliwe kama viongozi wa kisiasa, wapiga kura n.k) kama wavulana/ wanaume": {
+                'Nakubali kabisa',
+            },
+            "72. Ninahisi kwamba nimehusishwa katika utoaji wa maamuzi utakaoniathiri mimi. Mfano nilikuwa na fursa ya kuelezea maoni au mapenedekezo kwenye shule / jamii/vilabu vya michezo/ social clubs/Saccos nilizohudhuria na maoni yangu yalisikilizwa na kusikika.": {
+                'Nakubali kabisa',
+            },
+            "73. Kwa kawaida / mara nyingine ninashiriki katika mazungumzo ya kaya / shuleni/ au kwenye jamii": {
+                'Nakubali kabisa',
+            },
+            "74. Kwa kawaida au mara nyingine naongea na wazazi, washirika, waalimu, jamii n.k na mara nyingine ninahimiza katika utoaji wa maamuzi.": {
+                'Nakubali kabisa',
+            },
+        },
+        "care_and_unpaid_works": {
+            '67 a) Kuchota maji': {'Wote'},
+            '67 b) Kulisha na kuogesha watoto': {'Wote'},
+            '67 c) Kuwasaidia watoto masomo wakiwa nyumbani': {'Wote'},
+            '67 d) Kumhudumia mgonjwa': {'Wote'},
+            '67 e) Kuosha, kupika na kufanya usafi': {'Wote'},
+        },
+        "knowledge_and_nutrition": {
+            "anemia_knowledge": lambda x: _anemia_knowledge(x, endline),
+            "anemia_preve": lambda x: _anemia_preve(x, endline),
+            "facility_cat": lambda x: _facility_cat(x, endline),
+            "120. Lishe bora ni muhimu kwa wasichana toka muda anazaliwa ili iweze kuwasaidia kupata watoto wenye afya hapo baadaye": { 'Nakubaliana kabisa' },
+        },
+        "support_from_social_network": {
+            '27. Je wewe ni mwanachama wa club yeyote ya majadiliano shuleni, kwenye jamii? Je ulishawahi kufanya majadiliano shuleni au kuzungumza katika mikutano ya kijamii, kanisani/msikitini au mikutano ya kifamilia?': {'Ndiyo'},
+        },
+        "control_over_body": {
+            # HIV
+            "hiv": lambda x: _hiv_trans_scores2(x, endline),
+            # SRHR Knowledge
+            '109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?': ['109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?/Kituo cha Afya'], #was selected if response is 1
+            '111. Mama mjamzito anatakiwa kuhudhuria walau mara ngapi katika kituo cha huduma za afya?': { 'Nne' },
+            "preq_prevent": lambda x: _preq_prevent(x, endline),
+            '127. Ulishawahi kupima maambukizi ya VVU?': { 'Ndio' },
+            '129. Katika jamii yako, umewahi kupata taarifa, ushauri, au huduma za afya zinazohusiana na afya za uzazi na haki zake, pamoja na lishe (kwa mfano shuleni, klabu, mikutano ya kijamii au sehemu nyingine yoyote kwenye jamii?)': { 'Ndio' },
+            '115. Umewahi kusikia kuhusu vidonge vya dharura vya kuzuia ujauzito?': { 'Ndiyo' },
+            # Marriage
+            '105. Kwa kiwango gani unakubaliana au hukubaliani na sentensi zifuatazo? Kuhairisha ndoa na mimba ya kwanza ni nzuri kwa msichana inampa fursa ya kuendelea kusoma na kufikia ndoto zake, lakini pia inamsaidia kuepuka matatizo wakati wa kujifungua.': { 'Nakubali kabisa' },
+            '106. Ndoa kwa mtoto mdogo (chini ya miaka 18) ni mila mbaya': { 'Nakubali kabisa' },
+            '107. Serikali kudhibiti ndoa za utotoni': { 'Nakubali kabisa' },
+            # Sexual assault including rape
+            '86. Inakubalika kwa mvulana / mwanaume kumdhalilisha, kumtishia au kumtukana msichana/mwanamke asiyemtii?': { 'Sikubali kabisa' },
+            '87. Inakubalika kwa mvulana/ mwanaume kuwa na tabia za umiliki ( kudhibiti maamuzi na shughuli za rafiki wa kike / mke sababu tu ni rafiki yake wa kike au mke wake)': { 'Sikubali kabisa' },
+            '88. Inakubalika Kwa mvulana / mwanaume kudhibiti mienendo ya rafiki wa kike / mke kwa sababu tu ni Rafiki yake wa kike au mke wake': { 'Sikubali kabisa' },
+            '89. Inakubalika kwa mvulana / mwanaume kulazimisha mtu kubusiana, kushikana , Kujamiiana bila ridhaa yake': { 'Sikubali kabisa' },
+            '90. Inakubalika kwa mvulana / mwanaume kutoa maneno kwa msichana/mwanamke ya kumfanya adhalilike kijinsia au asijiskie vizuri': { 'Sikubali kabisa' },
+            '91. Inakubalika kwa mvulana/ mwanaume kuwa na udhibiti wote kwenye pesa na rasilimali zote za uchumi za rafiki wa kike / mke': { 'Sikubali kabisa' },
+        },
+        "leadership": {
+            '69. Wavulana/wanaume mashuleni, kwenye familia /jamii na ngazi ya nchi huwa ni viongozi wazuri kuliko wasichana/ wanawake': { 'Nakubali kabisa' }, # BUG!
+            '70. Wasichana/ wanawake wanaweza wakafanya maamuzi mazuri kuhusiana na chochote pamoja na maamuzi kwenye rasilimali( fedha,muda) shuleni, kwenye jamii, familia n.k kama vile wavulana/ wanaume wanavyoweza': { 'Nakubali kabisa' },
+            '75. Ninayo furaha kushiriki katika Kaya/ shule/ jamii katika kufanya maamuzi': { 'Nakubali kabisa' },
+            '76. Nina shauku kubwa ya kuwa kiongozi baadae kama vile kiongozi wa darasa, dada/kaka mkuu wa shule, kiongozi wa jamii au kiongozi wa siasa': { 'Nakubali kabisa' },
+        },
+        "economic_empowerment": {
+            '61. Kwa kiwango gani unakubali au kukataa sentensi ifuatayo? Wanawake/ wasichana wanauwezo wa kuchangia pato la kaya kama wanaume/wavulana': { 'Nakubali kabisa' },
+        }
+    }
+
+    _dimensions = (_dimensions_midline if not endline else _dimensions_endline)
     components = _dimensions.items()
     _dimensions['aggregate'] = {}
     for _, v in components:
@@ -1097,6 +1524,14 @@ _anemia_prevention_answers = [
     'A_Q_138_4', # Eat meat, liver
     'A_Q_138_7', # Balanced diet
 ]
+_anemia_prevention_answers_endline = [
+    '117. Unawezaje kuzuia upungufu wa damu?/Vidonge vya kuongeza damu', # Iron and folic acid tablets, Column KM
+    '117. Unawezaje kuzuia upungufu wa damu?/Kula mboga mboga kama bilinganya, carroti, nyanya chungu', # Eat vegetables
+    '117. Unawezaje kuzuia upungufu wa damu?/Kula mboga za majani kama mchicha, matembele, spinach', # Eat leafy greens
+    '117. Unawezaje kuzuia upungufu wa damu?/Kunywa maziwa', # Drink milk
+    '117. Unawezaje kuzuia upungufu wa damu?/Kula nyama, maini', # Eat meat, liver
+    '117. Unawezaje kuzuia upungufu wa damu?/Kula mlo ulio kamili ', # Balanced diet
+]
 
 def indicator_1220breakdown(df):
     """Proportion of adolescent girls and boys under 19 years who have correct knowledge of contraceptive methods, HIV and nutrition (disaggregated by sex)
@@ -1109,7 +1544,7 @@ def indicator_1220breakdown(df):
 
     anemia = df[_anemia_knowledge_correct_answers].apply(_anemia_knowledge, axis=1)
 
-    anemia_preve = df[_anemia_prevention_answers].apply(_count_strings, axis=1)
+    anemia_preve = df[(_anemia_prevention_answers if not endline else _anemia_prevention_answers_endline)].apply(_count_strings, axis=1)
     # BUG This is another mistake here ...
     # gen anemia_preve_stat=1 if anemia_preve>=3 & anemia_preve<=6
 
