@@ -1751,9 +1751,10 @@ def indicator_1200b(df):
 
     return results
 
-def indicator_1113(df):
+def indicator_1113(df, endline):
     filtered = df[(df["agegroup"] == "15-19") | (df["agegroup"] == "10-14")]
 
     results = pd.DataFrame()
-    results[0] = filtered['Q_154'].map({"Yes": 1, "No": 0})
+    _q = 'Q_154' if not endline else '129. Katika jamii yako, umewahi kupata taarifa, ushauri, au huduma za afya zinazohusiana na afya za uzazi na haki zake, pamoja na lishe (kwa mfano shuleni, klabu, mikutano ya kijamii au sehemu nyingine yoyote kwenye jamii?)'
+    results[0] = filtered[_q].map(({"Yes": 1, "No": 0} if not endline else {'Hapana': 0, 'Ndiyo': 1}))
     return results
