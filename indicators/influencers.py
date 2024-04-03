@@ -1,7 +1,7 @@
 import pandas as pd
 import datetime as dt
 
-def load(file_path):
+def load(file_path, endline):
     df = pd.read_spss(file_path)
 
     regions = {
@@ -9,10 +9,10 @@ def load(file_path):
         'Songwe': 'Songwe',
         'Pemba (Zanzibar)': 'Zanzibar',
         'Unguja (Zanzibar)': 'Zanzibar',
+        'Zanzibar': 'Zanzibar',
     }
 
-    df['regions'] = df['Q_5'].map(regions) # ENDLINE 1. Mkoa/Eneo la utafiti
-
+    df['regions'] = df[('Q_5' if not endline else "1. Mkoa/Eneo la utafiti")].map(regions)
 
     def _age_to_agegroup(age):
         if age < 10:
@@ -24,13 +24,16 @@ def load(file_path):
         else:
             return ">19"
 
-    df['age'] = df['Q_10'] # ENDLINE 6. Umri wa mhojiwa
+    df['age'] = df[('Q_10' if not endline else '6. Umri wa mhojiwa')]
     df['agegroup'] = df['age'].map(_age_to_agegroup)
-    df['sex'] = df["Q_20"] # ENDLINE Sex is taken from the file name
-    df['gender_support'] = df['Q_3']
+    if not endline:
+        df['sex'] = df["Q_20"] # ENDLINE Sex is taken from the file name
+        # TODO
+
+    df['gender_support'] = df['Q_3'] # ENDLINE This is taken from the file
     return df
 
-def indicator_1200a(df):
+def indicator_1200a(df, endline):
     """Proportion of community influencers (Local govt officials / Parents / teachers / religious leaders / HCW)
     who demonstrate supportive attitudes towards adolescents’ SRHR and nutrition (disaggregated by support for boys and for girls)
 
@@ -41,7 +44,7 @@ def indicator_1200a(df):
     filtered_df = df[df["Q_3"] == "Girls"]
 
     _questions_boys = [
-        'Q_21',
+        'Q_21', # 17. Masomo ya lishe ni muhimu kwa lishe bora kwa wavulana hata wakati wa utoto wao
         'Q_23',
         'Q_24',
         'Q_25',

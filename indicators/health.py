@@ -1,39 +1,46 @@
 import pandas as pd
 
 def load(file_path, endline):
-    df = pd.read_spss(file_path)
+    df = None
+    if file_path.endswith(".sav"):
+        df = pd.read_spss(file_path)
+    else:
+        df = pd.read_excel(file_path)
 
-    _regions = {
-        "Mbeya": {
-            "Ituha Dispensary",
-            "Madibira HC",
-            "Mawindi HC"
+    if not endline:
+        _regions = {
+            "Mbeya": {
+                "Ituha Dispensary",
+                "Madibira HC",
+                "Mawindi HC"
 
         },
-        "Songwe": {
-            "Isana HC",
-            "Itaka HC",
-            "Ndalambo HC",
-            "Machimbo Dispensary",
-        },
-        "Zanzibar": {
-            "Mwera PHCU",
-            "Mbuzini PHCU",
-            "Bwejuu HCU",
-            "KMKM Hospital",
-            "Konde PHCU",
-            "Mkoani Hospital",
-            "Bwagamoyo"
+            "Songwe": {
+                "Isana HC",
+                "Itaka HC",
+                "Ndalambo HC",
+                "Machimbo Dispensary",
+            },
+            "Zanzibar": {
+                "Mwera PHCU",
+                "Mbuzini PHCU",
+                "Bwejuu HCU",
+                "KMKM Hospital",
+                "Konde PHCU",
+                "Mkoani Hospital",
+                "Bwagamoyo"
+            }
         }
-    }
-    _names_to_regions = dict()
-    for k, hospitals in _regions.items():
-        for v in hospitals:
-            _names_to_regions[v] = k
+        _names_to_regions = dict()
 
-    facility_name = df["Q_3"]
+        for k, hospitals in _regions.items():
+            for v in hospitals:
+                _names_to_regions[v] = k
 
-    df['regions'] = facility_name.map(_names_to_regions)
+        facility_name = df["Q_3"]
+        df['regions'] = facility_name.map(_names_to_regions)
+    else:
+        df['regions'] = df["1. Mkoa/Eneo la utafiti"]
 
     return df
 

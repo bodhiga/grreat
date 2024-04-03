@@ -31,19 +31,21 @@ if not os.path.exists(_raw):
 df = adolescents.load("./Adolescent Survey_2022_20_09_10_37.sav", endline=False)
 eadf = adolescents.load("./UNICEF Tz_GRREAT Endline  Adolescents Survey_20240325.xlsx", endline=True)
 hdf = health.load('./Health Facility_2022_22_09_10_52.sav', endline=False)
+ehdf = health.load('./UNICEF_Tz-_GRREAT_Endline_-_Health_Facility_Checklist_-_all_versions_-_labels_-_2024-03-20-14-19-30.xlsx', endline=True)
 
 csdf = satisfaction.load('./Customer Satisfaction_2022_20_09_10_29.xlsx',
                          endline=False)
 endline_csdf = satisfaction.load('./UNICEF_Tz-_GRREAT_Endline_-_Customer_Satisfaction_Survey_-_all_versions_-_labels_-_2024-03-20-12-39-15.xlsx',
                                  endline=True)
 
-cidf = influencers.load('./Community_2022_22_09_10_51.sav')
+cidf = influencers.load('./Community_2022_22_09_10_51.sav', endline=False)
 
 bdf = baseline.load("./GIRLS EMPOWEMENT.dta")
 
 indicator.process(adf=df,
                   eadf=eadf,
                   hdf=hdf,
+                  ehdf=ehdf,
                   cidf=cidf,
                   csdf=csdf,
                   ecsdf=endline_csdf,

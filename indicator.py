@@ -12,7 +12,7 @@ import analysis as analysis
 import table as table
 import plot as plot
 
-def get_targets(adf, eadf, hdf, cidf, csdf, ecsdf,bdf):
+def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
     return {
         # NOTE dict format as such:
         # "indicator_name": {
@@ -72,7 +72,7 @@ def get_targets(adf, eadf, hdf, cidf, csdf, ecsdf,bdf):
         },
         # "1100a": { # TODO MISSING FROM FACILITY HEALTH LIST
         #     "dataframe": hdf.drop_duplicates(subset="Q_3"),
-        #     "endline_dataframe": hdf.drop_duplicates(subset="Q_3"), # TODO replace with endline dataframe
+        #     "endline_dataframe": ehdf,
         #     "func": health.indicator_1100a,
         #     "percent": True,
         #     "targets": {
@@ -118,32 +118,32 @@ def get_targets(adf, eadf, hdf, cidf, csdf, ecsdf,bdf):
                 },
             }
         },
-        "1200a": {
-            "dataframe": cidf,
-            "endline_dataframe": cidf, # TODO Replace with endline dataframe
-            "func": influencers.indicator_1200a,
-            "percent": True,
-            "targets": {
-                ("gender_support",): {
-                    "Boys": [0.798, 0.798 * 1.1],
-                    "Girls": [0.847, 0.847 * 1.1],
-                },
-                ("regions", "gender_support"): {
-                    "Mbeya": {
-                        "Boys": [0.833, 0.833 * 1.1],
-                        "Girls": [0.929, min(0.929 * 1.1, 1)],
-                    },
-                    "Songwe": {
-                        "Boys": [0.722, 0.722 * 1.1],
-                        "Girls": [0.895, 0.895 * 1.1],
-                    },
-                    "Zanzibar": {
-                        "Boys": [0.804, 0.804 * 1.1],
-                        "Girls": [0.793, 0.793 * 1.1],
-                    }
-                }
-            }
-        },
+        # "1200a": { # TODO Bit more complicated since it's multiple files
+        #     "dataframe": cidf,
+        #     "endline_dataframe": cidf, # TODO Replace with endline dataframe
+        #     "func": influencers.indicator_1200a,
+        #     "percent": True,
+        #     "targets": {
+        #         ("gender_support",): {
+        #             "Boys": [0.798, 0.798 * 1.1],
+        #             "Girls": [0.847, 0.847 * 1.1],
+        #         },
+        #         ("regions", "gender_support"): {
+        #             "Mbeya": {
+        #                 "Boys": [0.833, 0.833 * 1.1],
+        #                 "Girls": [0.929, min(0.929 * 1.1, 1)],
+        #             },
+        #             "Songwe": {
+        #                 "Boys": [0.722, 0.722 * 1.1],
+        #                 "Girls": [0.895, 0.895 * 1.1],
+        #             },
+        #             "Zanzibar": {
+        #                 "Boys": [0.804, 0.804 * 1.1],
+        #                 "Girls": [0.793, 0.793 * 1.1],
+        #             }
+        #         }
+        #     }
+        # },
         "1200b": {
             "dataframe": adf[adf["agegroup"] != "0-9"],
             "endline_dataframe": eadf[eadf["agegroup"] != "0-9"], # TODO replace with endline dataframe
@@ -400,8 +400,8 @@ def _target_gen(indict, acc = None):
     else:
         yield acc + [indict]
 
-def process(adf,eadf,hdf,cidf,csdf,ecsdf,bdf):
-    _targets = get_targets(adf,eadf,hdf,cidf,csdf,ecsdf,bdf)
+def process(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf):
+    _targets = get_targets(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf)
 
 
     for name, indicator in _targets.items():
@@ -528,6 +528,7 @@ def process(adf,eadf,hdf,cidf,csdf,ecsdf,bdf):
 def dashboard(adf,hdf, cidf, csdf,bdf):
         _targets = get_targets(adf=adf,
                                hdf=hdf,
+                               ehdf=ehdf,
                                cidf=cidf,
                                csdf=csdf,
                                bdf=bdf
