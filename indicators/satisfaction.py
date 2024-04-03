@@ -67,7 +67,7 @@ def load(file_path, endline=False):
         }
     }
     _names_to_regions = dict()
-    for k, hospitals in _regions.items():
+    for k, hospitals in (_regions if not endline else _endline_regions).items():
         for v in hospitals:
             _names_to_regions[v] = k
 
@@ -75,9 +75,14 @@ def load(file_path, endline=False):
     facility_name = df[_facility_col]
     df['regions'] = facility_name.map(_names_to_regions)
 
+    if endline:
+        df['sex'] = df['Jinsia'].map({'Mme': 'Male',
+                                      'Mke': 'Female'})
+
+    print("Data {endline}: {data}".format(endline=endline, data=df))
     return df
 
-def indicator_1100b(df):
+def indicator_1100b(df, endline):
     """Proportion of adolescent girls and boys who report receiving quality sexual and reproductive health and
     nutrition services in the selected districts in Mainland and Zanzibar (disaggregated by sex and age)
 
@@ -141,16 +146,21 @@ def indicator_1100b(df):
 
         return df.apply(_categorise)
 
+    qs = (_questions if not endline else _questions_endline)
     def _score_row(row):
         score = 0
         for k, v in row.items():
-            if _questions[k] == v:
+            if qs[k] == v:
                 score += 1
-        score = (100 * score) / len(_questions)
+        score = (100 * score) / len(qs)
+
+        print("Scoring row {endline}: {score}".format(endline=endline, score=score))
 
         return score
 
-    results = _bloom(df[_questions.keys()].apply(_score_row, axis=1)).apply(lambda x: 1 if x == "High" else 0)
+    data = df[(_questions if not endline else _questions_endline).keys()]
+    print("Pre-print data {endline}: {df}".format(endline=endline, df=df))
+    results = _bloom(data.apply(_score_row, axis=1)).apply(lambda x: 1 if x == "High" else 0)
     # egen overall_quality_scores=rowtotal(qn2b qn3b qn4b qn6b qn8b qn9b qn11b qn12b qn17b qn20b qn21b qn22b qn23b qn24b qn25b qn26b qn27b qn32b)
 
     # gen overall_quality_pc=overall_quality_scores/18*100

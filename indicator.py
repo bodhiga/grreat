@@ -70,19 +70,19 @@ def get_targets(adf, eadf, hdf, cidf, csdf, ecsdf,bdf):
                 }
             }
         },
-        "1100a": {
-            "dataframe": hdf.drop_duplicates(subset="Q_3"),
-            "endline_dataframe": hdf.drop_duplicates(subset="Q_3"), # TODO replace with endline dataframe
-            "func": health.indicator_1100a,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0.0, 0.0 + 0.1], # NOTE percentage _point_ increase
-                    "Songwe": [0.0, 0.0 + 0.1],
-                    "Zanzibar": [0.286, 0.286 * 1.1],
-                },
-            }
-        },
+        # "1100a": { # TODO MISSING FROM FACILITY HEALTH LIST
+        #     "dataframe": hdf.drop_duplicates(subset="Q_3"),
+        #     "endline_dataframe": hdf.drop_duplicates(subset="Q_3"), # TODO replace with endline dataframe
+        #     "func": health.indicator_1100a,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0.0, 0.0 + 0.1], # NOTE percentage _point_ increase
+        #             "Songwe": [0.0, 0.0 + 0.1],
+        #             "Zanzibar": [0.286, 0.286 * 1.1],
+        #         },
+        #     }
+        # },
         "1100b": {
             "dataframe": csdf,
             "endline_dataframe": ecsdf,
@@ -426,6 +426,7 @@ def process(adf,eadf,hdf,cidf,csdf,ecsdf,bdf):
 
             df = indicator["dataframe"]
             edf = indicator["endline_dataframe"] # TODO should be endline_df
+            print("Endline dataframe {name}: {edf}".format(name=name, edf=edf))
 
             values = indicator["targets"][cols]
             sequences = _target_gen(values)

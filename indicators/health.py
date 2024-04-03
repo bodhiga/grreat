@@ -1,6 +1,6 @@
 import pandas as pd
 
-def load(file_path):
+def load(file_path, endline):
     df = pd.read_spss(file_path)
 
     _regions = {
@@ -37,7 +37,7 @@ def load(file_path):
 
     return df
 
-def indicator_1100a(df):
+def indicator_1100a(df, endline):
     """Proportion of health facilities meeting national adolescent sexual and reproductive health standards in the selected districts in Mainland and Zanzibar
 
     Numerator: Number of health facilities meeting national adolescent sexual and reproductive health standards by scoring 80% and above.
