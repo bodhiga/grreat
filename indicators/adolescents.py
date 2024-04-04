@@ -1716,32 +1716,42 @@ def indicator_1220nutri(df):
     results[0] = bd['nutri_know_scores_pc']
     return results
 
-def indicator_1200b(df):
+def indicator_1200b(df, endline):
 
     df = df[(df["agegroup"] == "15-19") | (df["agegroup"] == "10-14")]
     # Calculation of indicator 1200b: As suggested by PEP and as agreed by Bodhi in the excel matrix, if changing the denominator makes more sense, can’t we do that and mention in the inception report that this is a change since baseline for improvement of the indicator? While we do want comparability, we shouldn’t go ahead with an indicator that doesn’t make sense. But I would also request you to consider the feasibility of collecting the data for denominator as suggested by PEP.
     # Table 3 Indicatori1200b: The proposed calculation for this indicator is not appropriate. Two thoughts: (1) FP is relevant as a proxy of SRHR service utilization, but how is nutrition measured in this study? Is the assumption that nutrition services are bundled with antenatal care visits? This is a big assumption, especially given the participants. (2) There is potentially a big problem with the denominator -- only those adolescents who are either pregnant (or accompanying a pregnant partner, potentially), or those who are sexually active or planning to be would access ANC and FP services to begin with. If you have the entire population of adolescents as the denominator, this indicator is not going to mean much. Would you not want to know this instead: among those who had a reason to access ANC or FP, what % actually sought the services?
-    inclusion_criteria = [
+    inclusion_criteria = ([
         'Q_118',
         'Q_119',
         'Q_110',
-        ]
+        ] if not endline else [
+            '102. Umeshawahi kutumia uzazi wa mpango (kama condom, vidonge, sindano)?',
+            '103. Ulitumia condom ulivyojamiiana kwa mara ya mwisho (ulivyojamiiana kabla ya mahojiano haya)?',
+            '94. Umeshawahi kufanya mapenzi?',
+        ])
 
     selection_criteria = [
         'Q_114',
         'Q_152',
         'Q_153',
+    ] if not endline else [
+        '98. Umewahi kupata mimba?',
+        '127. Ulishawahi kupima maambukizi ya VVU?',
+        '128. Ulishawahi kuumwa magonjwa ya zinaa?',
     ]
+
+    _yes = 'Yes' if not endline else 'Ndiyo'
 
     def _filter(row):
         for ic in selection_criteria:
-            if row[ic] == "Yes":
+            if row[ic] == _yes:
                 return 1
         return 0
 
     def _score(row):
         for ic in inclusion_criteria:
-            if row[ic] == "Yes":
+            if row[ic] == _yes:
                 return 1
         return 0
 
