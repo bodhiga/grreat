@@ -1469,7 +1469,7 @@ def indicator_1300b(df):
     return results
 
 
-def indicator_1210(df):
+def indicator_1210(df, endline):
     """Degree to which girls are perceived as equal to boys by adolescent girls / boys / parents / caregivers / community leaders (disaggregated by sex)
 
     Numerator: Number of boys and girls who strongly agree with the following statement: “Girls are equal to boys as such they should be given equal opportunity for education and considered in decision making etc”.
@@ -1492,11 +1492,11 @@ def indicator_1210(df):
 
 def indicator_1220a(df):
     intermediary = indicator_1220cat(df)
-    return pd.to_numeric(intermediary.apply(lambda x: 1 if x == "High" else 0))
+    return pd.to_numeric(intermediary.apply(lambda x: 1 if x == "High" else 0)) # TODO
 
 def indicator_1220ab(df):
     intermediary = indicator_1220cat(df)
-    return pd.to_numeric(intermediary.apply(lambda x: 1 if (x == "High" or x == "Moderate") else 0))
+    return pd.to_numeric(intermediary.apply(lambda x: 1 if (x == "High" or x == "Moderate") else 0)) # TODO
 
 
 # gen anemia=1 if QN116a==1 | QN116b==1 # Q_136 for us
@@ -1507,6 +1507,12 @@ _anemia_knowledge_correct_answers = [
     'A_Q_136_1', # lower red blood cells
     'A_Q_136_3', # Loss of appetite
 ]
+
+_anemia_knowledge_correct_answers_endline = [
+    '116, Unafahamu nini kuhusu upungufu wa damu?/Upungufu wa chembe nyekundu za damu', # lower red blood cells
+    '116, Unafahamu nini kuhusu upungufu wa damu?/Kukosa hamu ya kula', # Loss of appetite
+]
+
 def _anemia_knowledge(row):
     row = row[_anemia_knowledge_correct_answers]
     result = 0
@@ -1766,5 +1772,8 @@ def indicator_1113(df, endline):
 
     results = pd.DataFrame()
     _q = 'Q_154' if not endline else '129. Katika jamii yako, umewahi kupata taarifa, ushauri, au huduma za afya zinazohusiana na afya za uzazi na haki zake, pamoja na lishe (kwa mfano shuleni, klabu, mikutano ya kijamii au sehemu nyingine yoyote kwenye jamii?)'
-    results[0] = filtered[_q].map(({"Yes": 1, "No": 0} if not endline else {'Hapana': 0, 'Ndiyo': 1}))
+
+    # NOTE Ndiyo is mispelled here, it is not a bug.
+    results[0] = filtered[_q].map(({"Yes": 1, "No": 0} if not endline else {'Hapana': 0, 'Ndio': 1}))
+
     return results

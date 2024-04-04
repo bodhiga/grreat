@@ -78,8 +78,6 @@ def load(file_path, endline=False):
     if endline:
         df['sex'] = df['Jinsia'].map({'Mme': 'Male',
                                       'Mke': 'Female'})
-
-    print("Data {endline}: {data}".format(endline=endline, data=df))
     return df
 
 def indicator_1100b(df, endline):
@@ -153,13 +151,11 @@ def indicator_1100b(df, endline):
             if qs[k] == v:
                 score += 1
         score = (100 * score) / len(qs)
-
-        print("Scoring row {endline}: {score}".format(endline=endline, score=score))
+        # print("Scoring row {endline}: {score}".format(endline=endline, score=score))
 
         return score
 
     data = df[(_questions if not endline else _questions_endline).keys()]
-    print("Pre-print data {endline}: {df}".format(endline=endline, df=df))
     results = _bloom(data.apply(_score_row, axis=1)).apply(lambda x: 1 if x == "High" else 0)
     # egen overall_quality_scores=rowtotal(qn2b qn3b qn4b qn6b qn8b qn9b qn11b qn12b qn17b qn20b qn21b qn22b qn23b qn24b qn25b qn26b qn27b qn32b)
 

@@ -425,8 +425,7 @@ def process(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf):
             assert type(cols) == tuple
 
             df = indicator["dataframe"]
-            edf = indicator["endline_dataframe"] # TODO should be endline_df
-            print("Endline dataframe {name}: {edf}".format(name=name, edf=edf))
+            edf = indicator["endline_dataframe"]
 
             values = indicator["targets"][cols]
             sequences = _target_gen(values)
@@ -455,9 +454,10 @@ def process(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf):
                 eresult = f(filtered_edf, endline=True)
                 pmf_test_results = analysis.ttest(eresult, pmf_target, alternative=alternative)
                 midline_test_results = analysis.ttest(result, midline_target, alternative=alternative)
-                mean = eresult.mean()
+                mean = result.mean()
+                emean = eresult.mean()
 
-                print('Mean: {mu}, p-value (Midline target): {mp} p-value (PMF): {p}'.format(mu=mean, p=pmf_test_results.pvalue, mp=midline_test_results.pvalue))
+                print('Mean midline: {mu}, p-value (Midline target): {mp}\nMean endline: {mue}, p-value (PMF): {p}'.format(mu=mean, mue=emean, p=pmf_test_results.pvalue, mp=midline_test_results.pvalue))
                 print()
             pass
 
@@ -470,6 +470,7 @@ def process(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf):
 
             if indicator["percent"]:
                 result2["indicator"] = result2["indicator"].apply(lambda x: x * 100)
+                eresult2["indicator"] = eresult2["indicator"].apply(lambda x: x * 100)
 
             x = cols[0] if len(cols) > 0 else None
             hue = None
