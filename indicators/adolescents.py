@@ -1478,10 +1478,11 @@ def indicator_1210(df, endline):
     # NOTE The exact formulation of the asked question is (which mimics the baseline):
     # Tell me your perception, do you think girls are equal to boys and therefore should also be  given opportunities such as schooling etc.?
 
-    boys_and_girls = df['Q_80']
+    boys_and_girls = df[('Q_80' if not endline else "65. Niambie kwa mtazamo wako, unadhani msichana yupo sawa na mvulana kwahiyo inabidi apewe nafasi katika jamii kama vile kupata elimu n.k.")]
 
     def _strongly_agree (val):
-        if val == "Strongly agree":
+        _ca = "Strongly agree" if not endline else "Nakubali kabisa"
+        if val == _ca:
             return 1
         else:
             return 0
@@ -1490,12 +1491,12 @@ def indicator_1210(df, endline):
     results[0] = boys_and_girls.apply(_strongly_agree)
     return results
 
-def indicator_1220a(df):
-    intermediary = indicator_1220cat(df)
-    return pd.to_numeric(intermediary.apply(lambda x: 1 if x == "High" else 0)) # TODO
+def indicator_1220a(df, endline):
+    intermediary = indicator_1220cat(df, endline)
+    return pd.to_numeric(intermediary.apply(lambda x: 1 if x == "High" else 0))
 
-def indicator_1220ab(df):
-    intermediary = indicator_1220cat(df)
+def indicator_1220ab(df, endline):
+    intermediary = indicator_1220cat(df, endline)
     return pd.to_numeric(intermediary.apply(lambda x: 1 if (x == "High" or x == "Moderate") else 0)) # TODO
 
 
@@ -1503,18 +1504,17 @@ def indicator_1220ab(df):
 # # QN116a = Lack of red blood cells
 # # QN116b = Lack of appetite
 # replace anemia=0 if anemia==.
-_anemia_knowledge_correct_answers = [
-    'A_Q_136_1', # lower red blood cells
-    'A_Q_136_3', # Loss of appetite
-]
+def _anemia_knowledge_correct_answers(endline):
+    return [
+        'A_Q_136_1', # lower red blood cells
+        'A_Q_136_3', # Loss of appetite
+    ] if not endline else [
+        '116, Unafahamu nini kuhusu upungufu wa damu?/Upungufu wa chembe nyekundu za damu', # lower red blood cells
+        '116, Unafahamu nini kuhusu upungufu wa damu?/Kukosa hamu ya kula', # Loss of appetite
+    ]
 
-_anemia_knowledge_correct_answers_endline = [
-    '116, Unafahamu nini kuhusu upungufu wa damu?/Upungufu wa chembe nyekundu za damu', # lower red blood cells
-    '116, Unafahamu nini kuhusu upungufu wa damu?/Kukosa hamu ya kula', # Loss of appetite
-]
-
-def _anemia_knowledge(row):
-    row = row[_anemia_knowledge_correct_answers]
+def _anemia_knowledge(row, endline):
+    row = row[_anemia_knowledge_correct_answers(endline)]
     result = 0
     for key, val in row.items():
         if isinstance(val, str):
@@ -1522,24 +1522,24 @@ def _anemia_knowledge(row):
     return result
 
 # egen anemia_preve=rowtotal(QN117a QN117b QN117c QN117d QN117e QN117g) # That's Q_138 for us
-_anemia_prevention_answers = [
-    'A_Q_138_1', # Iron and folic acid tablets
-    'A_Q_138_3', # Eat vegetables
-    'A_Q_138_2', # Eat leafy greens
-    'A_Q_138_5', # Drink milk
-    'A_Q_138_4', # Eat meat, liver
-    'A_Q_138_7', # Balanced diet
-]
-_anemia_prevention_answers_endline = [
-    '117. Unawezaje kuzuia upungufu wa damu?/Vidonge vya kuongeza damu', # Iron and folic acid tablets, Column KM
-    '117. Unawezaje kuzuia upungufu wa damu?/Kula mboga mboga kama bilinganya, carroti, nyanya chungu', # Eat vegetables
-    '117. Unawezaje kuzuia upungufu wa damu?/Kula mboga za majani kama mchicha, matembele, spinach', # Eat leafy greens
-    '117. Unawezaje kuzuia upungufu wa damu?/Kunywa maziwa', # Drink milk
-    '117. Unawezaje kuzuia upungufu wa damu?/Kula nyama, maini', # Eat meat, liver
-    '117. Unawezaje kuzuia upungufu wa damu?/Kula mlo ulio kamili ', # Balanced diet
-]
+def _anemia_prevention_answers(endline):
+    return [
+        'A_Q_138_1', # Iron and folic acid tablets
+        'A_Q_138_3', # Eat vegetables
+        'A_Q_138_2', # Eat leafy greens
+        'A_Q_138_5', # Drink milk
+        'A_Q_138_4', # Eat meat, liver
+        'A_Q_138_7', # Balanced diet
+    ] if not endline else [
+        '117. Unawezaje kuzuia upungufu wa damu?/Vidonge vya kuongeza damu', # Iron and folic acid tablets, Column KM
+        '117. Unawezaje kuzuia upungufu wa damu?/Kula mboga mboga kama bilinganya, carroti, nyanya chungu', # Eat vegetables
+        '117. Unawezaje kuzuia upungufu wa damu?/Kula mboga za majani kama mchicha, matembele, spinach', # Eat leafy greens
+        '117. Unawezaje kuzuia upungufu wa damu?/Kunywa maziwa', # Drink milk
+        '117. Unawezaje kuzuia upungufu wa damu?/Kula nyama, maini', # Eat meat, liver
+        '117. Unawezaje kuzuia upungufu wa damu?/Kula mlo ulio kamili ', # Balanced diet
+    ]
 
-def indicator_1220breakdown(df):
+def indicator_1220breakdown(df, endline):
     """Proportion of adolescent girls and boys under 19 years who have correct knowledge of contraceptive methods, HIV and nutrition (disaggregated by sex)
 
     Numerator: Number of adolescent girls and boys under 19 years who have correct knowledge of contraceptive methods, HIV and nutrition by scoring 80% and above.
@@ -1547,10 +1547,9 @@ def indicator_1220breakdown(df):
     """
     results = pd.DataFrame()
 
+    anemia = df[_anemia_knowledge_correct_answers(endline)].apply(lambda x: _anemia_knowledge(x, endline), axis=1)
 
-    anemia = df[_anemia_knowledge_correct_answers].apply(_anemia_knowledge, axis=1)
-
-    anemia_preve = df[(_anemia_prevention_answers if not endline else _anemia_prevention_answers_endline)].apply(_count_strings, axis=1)
+    anemia_preve = df[_anemia_prevention_answers(endline)].apply(lambda x: _count_strings(x, endline), axis=1)
     # BUG This is another mistake here ...
     # gen anemia_preve_stat=1 if anemia_preve>=3 & anemia_preve<=6
 
@@ -1567,8 +1566,11 @@ def indicator_1220breakdown(df):
         'A_Q_140_1', # Health centre
         # 'A_Q_140_3', # Traditional healers # NOTE BUG Traditional healers were included in the baseline,
         # but Jaya and Nicholas advised on 6/10/22 that it is not correct
+    ] if not endline else [
+        '118. Utaenda wapi kutafuta huduma ya virutubisho vya mwili na msaada ikitokea unahuitaji? ● Dawa za hospitali za kuongeza damu, mizizi lishe, matunda, mbegu lishe n.k/Kituo cha afya', # Health centre
     ]
-    facility_score = df[_health_services_correct_answers].apply(_count_strings, axis=1)
+
+    facility_score = df[_health_services_correct_answers].apply(lambda x: _count_strings(x, endline), axis=1)
 
     # gen facility_cat=1 if facility_score!=0
     # replace facility_cat=0 if facility_cat==.
@@ -1583,6 +1585,12 @@ def indicator_1220breakdown(df):
         'Partly disagree': 0, # 2 in the baseline
         'Strongly agree': 1,
         'Strongly disagree': 0, # 2 in the baseline
+        #ENDLINE # TODO
+        'Sikubaliani kabisa': 0, # strongly disagree
+        'Sikubaliani kiasi': 0, # I somewhat disagree
+        'Nakubaliana kiasi': 1, # Somewhat agree
+        'Nakubaliana kabisa': 1, # strongly agree
+        0: 0
     }
 
     _disagreement_map = {
@@ -1591,15 +1599,21 @@ def indicator_1220breakdown(df):
         'Partly disagree': 1,
         'Strongly agree': 0,
         'Strongly disagree': 1,
+        # ENDLINE # TODO
+        'Sikubaliani kabisa': 1, # strongly disagree
+        'Sikubaliani kiasi': 1, # I somewhat disagree
+        'Nakubaliana kiasi': 0, # Somewhat agree
+        'Nakubaliana kabisa': 0, # strongly agree
+        0: 0
     }
 
     # NOTE BUG This was _agreement_map in the baseline, but the question is framed in the reverse, so
     # _disagreement_map is correct here
-    QN119c = df['Q_142'].map(_disagreement_map).apply(pd.to_numeric) # It is proper to give boy children more and proper balanced ...
+    QN119c = df[('Q_142' if not endline else '119. Ni sahihi kumpa mtoto wa kiume zaidi chakula bora kuliko mtoto wa kike?')].map(_disagreement_map).apply(pd.to_numeric) # It is proper to give boy children more and proper balanced ...
 
-    QN120c = df['Q_143'].map(_agreement_map).apply(pd.to_numeric) # Good nutrition is very important for girls ...
-    QN121c = df['Q_144'].map(_agreement_map).apply(pd.to_numeric) # Good nutrition is very important for pregnant women ...
-    QN122 = df['Q_145'].map(_agreement_map).apply(pd.to_numeric) # Nutrition is important for adolescent girls in general ...
+    QN120c = df[('Q_143' if not endline else '120. Lishe bora ni muhimu kwa wasichana toka muda anazaliwa ili iweze kuwasaidia kupata watoto wenye afya hapo baadaye')].map(_agreement_map).apply(pd.to_numeric) # Good nutrition is very important for girls ...
+    QN121c = df[('Q_144' if not endline else '121. Lishe bora ni muhimu sana kwa mama mjamzito kabla kubeba mimba na baada ya kujifungua')].map(_agreement_map).apply(pd.to_numeric) # Good nutrition is very important for pregnant women ...
+    QN122 = df[('Q_145' if not endline else '122. Lishe bora ni muhimu kwa wasichana kwa ujumla kwa maana lishe duni inasababisha utendaji duni mashuleni, inaathiri maenedeleo ya ukuaji na muonekano wa kimwili')].map(_agreement_map).apply(pd.to_numeric) # Nutrition is important for adolescent girls in general ...
 
     nutri_know_scores = anemia + anemia_preve_stat + QN119c + QN120c + QN121c + QN122
 
@@ -1618,7 +1632,7 @@ def indicator_1220breakdown(df):
     # lab values QN111b QN111b
     # tab QN111b
     # NOTE BUG 0 was 2 in the baseline, after meeting w/ Jaya and Nicholas we agreed to correct this
-    knows_checkups = df['Q_129'].apply(lambda x: 1 if x == 4 else 0).apply(pd.to_numeric)
+    knows_checkups = df[('Q_129' if not endline else '111. Mama mjamzito anatakiwa kuhudhuria walau mara ngapi katika kituo cha huduma za afya?')].apply(lambda x: 1 if (x == 4 or x == 'Nne') else 0).apply(pd.to_numeric)
 
     # QN113: Tell me any birth control pills you know of ... corresponds to Q_132
     # NOTE There appears to be a BUG here. 1 means the respondent was aware, 2 means not aware ... but we total them together ...
@@ -1631,33 +1645,64 @@ def indicator_1220breakdown(df):
     # NOTE we should filter out those that decline to answer, but that was not done in baseline,
     # and they were counted as zero scores.
     # Decline to answer is Q_132_11
-    def _is_string(x):
-        if isinstance(x, str):
-            return 1
-        return 0
+    def _is_string(x, endline):
+        if not endline:
+            if isinstance(x, str):
+                return 1
+            return 0
+        else:
+            return x
 
-    fp_know_scores = \
-    knows_checkups + \
-    df['A_Q_132_10'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_1'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_3'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_2'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_5'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_4'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_7'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_6'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_9'].apply(_is_string).astype('int64') + \
-    df['A_Q_132_8'].apply(_is_string).astype('int64')
+
+    _checkup_q = [
+        'A_Q_132_10',
+        'A_Q_132_1',
+        'A_Q_132_3',
+        'A_Q_132_2',
+        'A_Q_132_5',
+        'A_Q_132_4',
+        'A_Q_132_7',
+        'A_Q_132_6',
+        'A_Q_132_9',
+        'A_Q_132_8',
+    ] if not endline else [
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kumwaga pembeni /withdraw',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kondom',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Vidonge vya dharura vya kuzuia mimba/ P2',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Vidonge vya kuzuia mimb/majira',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Sindano',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kitanzi',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kutokujamiiana',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Vipandikizi',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kutumia kalenda',
+        '113. Nitajie njia zozote za kuzuia mimba unazozifahamu/Kunyonyesha'
+    ]
+
+    fp_know_scores = knows_checkups
+    for x in _checkup_q:
+        fp_know_scores += df[x].apply(lambda y: _is_string(y, endline)).astype('int64')
 
     # egen hiv_trans_scores=rowtotal(QN126a_1 QN126b_1 QN126c_1 QN126d_1 QN126e_1)
     # gen hiv_trans_cat=1 if hiv_trans_scores==5
     # replace hiv_trans_cat=0 if hiv_trans_cat==.
     # Q_151 in our dataset
-    _hiv_answers = ['T_Q_151_1', 'T_Q_151_2', 'T_Q_151_3', 'T_Q_151_4', 'T_Q_151_5']
+    _hiv_answers = [
+        'T_Q_151_1',
+        'T_Q_151_2',
+        'T_Q_151_3',
+        'T_Q_151_4',
+        'T_Q_151_5',
+    ] if not endline else [
+        '126a. Je inawezekana kupunguza hatari ya kusambaa kwa maambukizi ya VVU kwa kujamiiana na mwenza mmoja asiye na maambukizi, na hana wenza wengine?',
+        '126b. Je mtu anaweza kupunguza hatari ya kupata maambukizi ya VVU kwa kutumia kondomu kila anapo jamiiana?',
+        '126c. Je mtu anaweza kupata maambukizi ya VVU kwa kula chakula na mtu mwenye maambukizi?',
+        '126d. Je Mtu mwenye afya nzuri anaweza kuwa na VVU',
+        '126e.  Je mtu anaweza kupata VVU kwa kung’atwa na mbu?'
+    ]
     def _count_yeses(row):
         n = 0
         for key, value in row.items():
-            if value == "Yes":
+            if value == "Yes" or value == "Ndio":
                 n = n + 1
         return n
 
@@ -1687,8 +1732,8 @@ def indicator_1220breakdown(df):
 
     return results
 
-def indicator_1220cat(df):
-    breakdown = indicator_1220breakdown(df)
+def indicator_1220cat(df, endline):
+    breakdown = indicator_1220breakdown(df, endline)
 
     results = breakdown['nutri_know_scores'] + breakdown['fp_know_scores'] + breakdown['hiv_trans_scores']
     results = 100 * results / (11 + 7 + 5)
@@ -1704,20 +1749,20 @@ def indicator_1220cat(df):
     # tab hiv_nutr_fp_know_cat
     return _bloom(results)
 
-def indicator_1220hiv(df):
-    bd = indicator_1220breakdown(df)
+def indicator_1220hiv(df, endline):
+    bd = indicator_1220breakdown(df, endline)
     results = pd.DataFrame()
     results[0] = bd['hiv_trans_scores_pc']
     return results
 
-def indicator_1220fp(df):
-    bd = indicator_1220breakdown(df)
+def indicator_1220fp(df, endline):
+    bd = indicator_1220breakdown(df, endline)
     results = pd.DataFrame()
     results[0] = bd['fp_know_scores_pc']
     return results
 
-def indicator_1220nutri(df):
-    bd = indicator_1220breakdown(df)
+def indicator_1220nutri(df, endline):
+    bd = indicator_1220breakdown(df, endline)
     results = pd.DataFrame()
     results[0] = bd['nutri_know_scores_pc']
     return results
