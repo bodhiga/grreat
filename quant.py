@@ -68,35 +68,37 @@ print()
 
 
 # ## TO GENERATE THE CHARACTERISTICS TABLE
-_rows = [
-   'agegroup',
-   'sex',
-   'schooling',
-   'education',
-   'occupation',
-         ]
-_row_labels = [
-   'Age Group',
-   'Sex',
-   'Still schooling',
-   'Highest Achieved Level of Education',
-   'Occupation',
-]
+def characteristics_table(df, endline):
+   _rows = [
+      'agegroup',
+      'sex',
+      'schooling',
+      'education',
+      'occupation',
+            ]
+   _row_labels = [
+      'Age Group',
+      'Sex',
+      'Still schooling',
+      'Highest Achieved Level of Education',
+      'Occupation',
+   ]
 
-_columns = ['sex', 'regions']
+   _columns = ['sex', 'regions']
+   filtered_df = df[df['agegroup'].isin(['10-14', '15-19'])]
 
-filtered_df = df[df['agegroup'].isin(['10-14', '15-19'])]
+   def _aggfunc(x):
+      count = len(x)
+      percent = 100 * count / len(filtered_df)
+      return "{n} ({p:.1f}%)".format(n=count, p=percent)
 
-def _aggfunc(x):
-   count = len(x)
-   percent = 100 * count / len(filtered_df)
-   return "{n} ({p:.1f}%)".format(n=count, p=percent)
+   for idx, r in enumerate(_rows):
+      result = pd.concat(
+         [pd.concat([pd.DataFrame([[]], columns=[], index=[_row_labels[idx]])] + [pd.crosstab(filtered_df[r], filtered_df[c], values=filtered_df["sex"], aggfunc=_aggfunc, margins=(cidx + 1 == len(_columns))) for cidx, c in enumerate(_columns)], axis=1)])
+      result.to_excel('./output/characteristics_{}.xlsx'.format(r))
 
-
-for idx, r in enumerate(_rows):
-   result = pd.concat(
-      [pd.concat([pd.DataFrame([[]], columns=[], index=[_row_labels[idx]])] + [pd.crosstab(filtered_df[r], filtered_df[c], values=filtered_df["sex"], aggfunc=_aggfunc, margins=(cidx + 1 == len(_columns))) for cidx, c in enumerate(_columns)], axis=1)])
-   result.to_excel('./output/characterstics_{}.xlsx'.format(r))
+characteristics_table(df, endline=False)
+characteristics_table(eadf, endline=True)
 
 indicator.dashboard(adf=df, hdf=hdf, cidf=cidf, csdf=csdf, bdf=bdf)
 
