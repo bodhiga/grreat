@@ -31,7 +31,7 @@ if not os.path.exists(_raw):
 df = adolescents.load("./Adolescent Survey_2022_20_09_10_37.sav", endline=False)
 eadf = adolescents.load("./UNICEF Tz_GRREAT Endline  Adolescents Survey_20240325.xlsx", endline=True)
 hdf = health.load('./Health Facility_2022_22_09_10_52.sav', endline=False)
-ehdf = health.load('./UNICEF_Tz-_GRREAT_Endline_-_Health_Facility_Checklist_-_all_versions_-_labels_-_2024-03-20-14-19-30.xlsx', endline=True)
+ehdf = health.load('./UNICEF_Tz-_GRREAT_Endline_-_Health_Facility_Checklist_-_all_versions_-_labels_-_2024-03-28-09-01-12.xlsx', endline=True)
 
 csdf = satisfaction.load('./Customer Satisfaction_2022_20_09_10_29.xlsx',
                          endline=False)
@@ -98,12 +98,11 @@ def characteristics_table(df, endline):
       result = pd.concat(
          [pd.concat([pd.DataFrame([[]], columns=[], index=[_row_labels[idx]])] + [pd.crosstab(filtered_df[r], filtered_df[c], values=filtered_df["sex"], aggfunc=_aggfunc, margins=(cidx + 1 == len(_columns))) for cidx, c in enumerate(_columns)], axis=1)])
       result.to_excel('./output/characteristics_{study}_{r}.xlsx'.format(study=('midline' if not endline else 'endline'), r=r))
-   import pdb; pdb.set_trace()
 
 characteristics_table(df, endline=False)
 characteristics_table(eadf, endline=True)
 
-indicator.dashboard(adf=df, hdf=hdf, cidf=cidf, csdf=csdf, bdf=bdf)
+# indicator.dashboard(adf=df, eadf=eadf, hdf=hdf, ehdf=ehdf, cidf=cidf, csdf=csdf, ecsdf=endline_csdf, bdf=bdf) # TODO
 
 adf = df
 indicator.gei_breakdown(adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))])

@@ -950,6 +950,10 @@ def indicator_1000(df, endline):
     # Finally calculate each rows girls empowerment index value by taking the average of the 5 domains
     girls_empowerment_index = results[list(results.keys())].mean(axis=1).apply(lambda x: x / 100)
 
+    if endline:
+        import pdb
+        pdb.set_trace()
+
     return girls_empowerment_index
 
 def _total_acc(row, endline):
@@ -1405,13 +1409,13 @@ def indicator_1000_v2(df, endline):
     for empowerment_domain, questions in _dimensions.items():
         results[empowerment_domain] = df.apply(lambda x: 100 * _domain_score(questions, x) , axis=1)
 
-    # _debug_single_choice_questions = [sq for domain in _dimensions.values() for sq in domain if isinstance(domain[sq], set)]
-    # _debug_multi_choice_answers = [a for domain in _dimensions.values() for mq in domain.keys() if isinstance(domain[mq], list) for a in domain[mq]]
-    # _debug_all_answers = [a for qs in [_debug_single_choice_questions, _debug_multi_choice_answers] for a in qs]
-    # print('missing:')
-    # _debug_missing = set(_debug_all_answers).difference(_debug_answer_is_present_at_least_once)
-    # print(_debug_missing)
-    # print(df[_debug_missing].head())
+    _debug_single_choice_questions = [sq for domain in _dimensions.values() for sq in domain if isinstance(domain[sq], set)]
+    _debug_multi_choice_answers = [a for domain in _dimensions.values() for mq in domain.keys() if isinstance(domain[mq], list) for a in domain[mq]]
+    _debug_all_answers = [a for qs in [_debug_single_choice_questions, _debug_multi_choice_answers] for a in qs]
+    print('missing:')
+    _debug_missing = set(_debug_all_answers).difference(_debug_answer_is_present_at_least_once)
+    print(_debug_missing)
+    print(df[_debug_missing].head())
     return results
 
 

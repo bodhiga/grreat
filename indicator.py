@@ -14,40 +14,6 @@ import plot as plot
 
 def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
     return {
-        # NOTE dict format as such:
-        # "indicator_name": {
-        #    "dataframe": df,
-        #    "endline_dataframe": df,
-        #    "func": callable(df),
-        #    "targets": ("disaggregation_column1", "disaggregation_column2"): {
-        #        "disaggregation_column1_value": {
-        #            "disaggregation_column2_value": [baseline, pmf_target],
-        #         }
-        #    }
-        # }
-        # NOTE Targets are copied from page 16 in:
-        #      GRREAT Baseline Report_FINAL.pdf
-        # "1000a": { # NOTE Not included in midline
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0.33, 0.28],
-        #             "Songwe": [0.33, 0.28],
-        #             "Zanzibar": [0.08, 0.7],
-        #         },
-        #     }
-        # },
-        # "1000b": {
-        #     # "func": adolescents.indicator_1000b,
-        #     # "dataframe": adf,
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0.47, 0.4],
-        #             "Songwe": [0.47, 0.4],
-        #             "Zanzibar": [0.68, 0.4],
-        #         },
-        #     }
-        # },
-        # }
         "1000c": {
             "func": adolescents.indicator_1000,
             "dataframe": adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))], # GIRLS ONLY! BUG looks like the baseline was calculated with both boys and girls?
@@ -526,12 +492,14 @@ def process(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf):
         print()
 
 
-def dashboard(adf,hdf, cidf, csdf,bdf):
+def dashboard(adf, eadf, hdf, cidf, csdf, ecsdf, bdf, ehdf): # TODO
         _targets = get_targets(adf=adf,
+                               eadf=eadf,
                                hdf=hdf,
                                ehdf=ehdf,
                                cidf=cidf,
                                csdf=csdf,
+                               ecsdf=ecsdf,
                                bdf=bdf
                                )
         _expected_results = {
@@ -630,7 +598,7 @@ def dashboard(adf,hdf, cidf, csdf,bdf):
         adolescents.indicator_1300b_tables(adf)
 
 
-def gei_breakdown(df):
+def gei_breakdown(df, endline):
     dimensions = {
         "Self-perception and personal changes": {
             'key': 'self_perception',
@@ -813,7 +781,7 @@ def gei_breakdown(df):
         return df.apply(_categorise)
 
     output = pd.DataFrame()
-    results = adolescents.indicator_1000_v2(df)
+    results = adolescents.indicator_1000_v2(df, endline)
 
     for d, v in dimensions.items():
         key = v['key']
