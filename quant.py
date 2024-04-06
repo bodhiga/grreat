@@ -42,29 +42,30 @@ cidf = influencers.load('./Community_2022_22_09_10_51.sav', endline=False)
 
 bdf = baseline.load("./GIRLS EMPOWEMENT.dta")
 
-indicator.process(adf=df,
-                  eadf=eadf,
-                  hdf=hdf,
-                  ehdf=ehdf,
-                  cidf=cidf,
-                  csdf=csdf,
-                  ecsdf=endline_csdf,
-                  bdf=bdf)
+# TODO
+# indicator.process(adf=df,
+#                   eadf=eadf,
+#                   hdf=hdf,
+#                   ehdf=ehdf,
+#                   cidf=cidf,
+#                   csdf=csdf,
+#                   ecsdf=endline_csdf,
+#                   bdf=bdf)
 
-# NOTE Print a table for
-table_1100a = pd.concat([health.indicator_1100a(hdf), hdf], axis=1)
-table_1100a = table_1100a[["regions", "Q_3", 0]]
-table_1100a.to_excel('./output/table_1100a.xlsx')
+# # NOTE Print a table for
+# table_1100a = pd.concat([health.indicator_1100a(hdf), hdf], axis=1)
+# table_1100a = table_1100a[["regions", "Q_3", 0]]
+# table_1100a.to_excel('./output/table_1100a.xlsx')
 
-print()
+# print()
 
-print('Community Influencers survey, breakdown')
-analysis.breakdown(cidf, ['sex', 'regions'])
-print()
+# print('Community Influencers survey, breakdown')
+# analysis.breakdown(cidf, ['sex', 'regions'])
+# print()
 
-print('Customer Satisfaction survey, breakdown')
-analysis.breakdown(csdf, ['sex', 'regions'])
-print()
+# print('Customer Satisfaction survey, breakdown')
+# analysis.breakdown(csdf, ['sex', 'regions'])
+# print()
 
 
 # ## TO GENERATE THE CHARACTERISTICS TABLE
@@ -75,7 +76,8 @@ def characteristics_table(df, endline):
       'schooling',
       'education',
       'occupation',
-            ]
+   ]
+
    _row_labels = [
       'Age Group',
       'Sex',
@@ -95,7 +97,8 @@ def characteristics_table(df, endline):
    for idx, r in enumerate(_rows):
       result = pd.concat(
          [pd.concat([pd.DataFrame([[]], columns=[], index=[_row_labels[idx]])] + [pd.crosstab(filtered_df[r], filtered_df[c], values=filtered_df["sex"], aggfunc=_aggfunc, margins=(cidx + 1 == len(_columns))) for cidx, c in enumerate(_columns)], axis=1)])
-      result.to_excel('./output/characteristics_{}.xlsx'.format(r))
+      result.to_excel('./output/characteristics_{study}_{r}.xlsx'.format(study=('midline' if not endline else 'endline'), r=r))
+   import pdb; pdb.set_trace()
 
 characteristics_table(df, endline=False)
 characteristics_table(eadf, endline=True)

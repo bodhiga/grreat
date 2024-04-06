@@ -70,19 +70,19 @@ def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
                 }
             }
         },
-        # "1100a": { # TODO MISSING FROM FACILITY HEALTH LIST
-        #     "dataframe": hdf.drop_duplicates(subset="Q_3"),
-        #     "endline_dataframe": ehdf,
-        #     "func": health.indicator_1100a,
-        #     "percent": True,
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0.0, 0.0 + 0.1], # NOTE percentage _point_ increase
-        #             "Songwe": [0.0, 0.0 + 0.1],
-        #             "Zanzibar": [0.286, 0.286 * 1.1],
-        #         },
-        #     }
-        # },
+        "1100a": { # TODO MISSING FROM FACILITY HEALTH LIST
+            "dataframe": hdf.drop_duplicates(subset="Q_3"),
+            "endline_dataframe": ehdf,
+            "func": health.indicator_1100a,
+            "percent": True,
+            "targets": {
+                ("regions",): {
+                    "Mbeya": [0.0, 0.0 + 0.1], # NOTE percentage _point_ increase
+                    "Songwe": [0.0, 0.0 + 0.1],
+                    "Zanzibar": [0.286, 0.286 * 1.1],
+                },
+            }
+        },
         "1100b": {
             "dataframe": csdf,
             "endline_dataframe": ecsdf,

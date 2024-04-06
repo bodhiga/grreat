@@ -1430,7 +1430,7 @@ _s_n_rights_questions = [
     'A_Q_157_14', # Cervical cancer
 ]
 
-def indicator_1300b_tables(df):
+def indicator_1300b_tables(df, endline):
     results = df[_s_n_rights_questions].apply(lambda x: pd.Series.value_counts(x,normalize=True)).sum(axis=1)
     return results
 
