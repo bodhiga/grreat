@@ -12,7 +12,7 @@ import analysis as analysis
 import table as table
 import plot as plot
 
-def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
+def get_targets(adf, eadf, hdf, ehdf, cidf, ecidf, csdf, ecsdf,bdf):
     return {
         "1000c": {
             "func": adolescents.indicator_1000,
@@ -70,46 +70,46 @@ def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
                 },
             }
         },
-        # "1113": {
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "func": adolescents.indicator_1113,
-        #     "percent": True,
-        #     "targets": {
-        #         (): [0.0, 0.0],
-        #         ("regions",): {
-        #             "Mbeya": [0.0, 0.0],
-        #             "Songwe": [0.0, 0.0],
-        #             "Zanzibar": [0.0, 0.0],
-        #         },
-        #     }
-        # },
-        # "1200a": { # TODO Bit more complicated since it's multiple files
-        #     "dataframe": cidf,
-        #     "endline_dataframe": cidf, # TODO Replace with endline dataframe
-        #     "func": influencers.indicator_1200a,
-        #     "percent": True,
-        #     "targets": {
-        #         ("gender_support",): {
-        #             "Boys": [0.798, 0.798 * 1.1],
-        #             "Girls": [0.847, 0.847 * 1.1],
-        #         },
-        #         ("regions", "gender_support"): {
-        #             "Mbeya": {
-        #                 "Boys": [0.833, 0.833 * 1.1],
-        #                 "Girls": [0.929, min(0.929 * 1.1, 1)],
-        #             },
-        #             "Songwe": {
-        #                 "Boys": [0.722, 0.722 * 1.1],
-        #                 "Girls": [0.895, 0.895 * 1.1],
-        #             },
-        #             "Zanzibar": {
-        #                 "Boys": [0.804, 0.804 * 1.1],
-        #                 "Girls": [0.793, 0.793 * 1.1],
-        #             }
-        #         }
-        #     }
-        # },
+        "1113": {
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "func": adolescents.indicator_1113,
+            "percent": True,
+            "targets": {
+                (): [0.0, 0.0],
+                ("regions",): {
+                    "Mbeya": [0.0, 0.0],
+                    "Songwe": [0.0, 0.0],
+                    "Zanzibar": [0.0, 0.0],
+                },
+            }
+        },
+        "1200a": {
+            "dataframe": cidf,
+            "endline_dataframe": ecidf,
+            "func": influencers.indicator_1200a,
+            "percent": True,
+            "targets": {
+                ("gender_support",): {
+                    "Boys": [0.798, 0.798 * 1.1],
+                    "Girls": [0.847, 0.847 * 1.1],
+                },
+                ("regions", "gender_support"): {
+                    "Mbeya": {
+                        "Boys": [0.833, 0.833 * 1.1],
+                        "Girls": [0.929, min(0.929 * 1.1, 1)],
+                    },
+                    "Songwe": {
+                        "Boys": [0.722, 0.722 * 1.1],
+                        "Girls": [0.895, 0.895 * 1.1],
+                    },
+                    "Zanzibar": {
+                        "Boys": [0.804, 0.804 * 1.1],
+                        "Girls": [0.793, 0.793 * 1.1],
+                    }
+                }
+            }
+        },
         # "1200b": {
         #     "dataframe": adf[adf["agegroup"] != "0-9"],
         #     "endline_dataframe": eadf[eadf["agegroup"] != "0-9"],
@@ -364,8 +364,8 @@ def _target_gen(indict, acc = None):
     else:
         yield acc + [indict]
 
-def process(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf):
-    _targets = get_targets(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf)
+def process(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf):
+    _targets = get_targets(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf)
 
 
     for name, indicator in _targets.items():
@@ -490,12 +490,13 @@ def process(adf,eadf,hdf,ehdf,cidf,csdf,ecsdf,bdf):
         print()
 
 
-def dashboard(adf, eadf, hdf, cidf, csdf, ecsdf, bdf, ehdf): # TODO
+def dashboard(adf, eadf, hdf, cidf, ecidf, csdf, ecsdf, bdf, ehdf): # TODO
         _targets = get_targets(adf=adf,
                                eadf=eadf,
                                hdf=hdf,
                                ehdf=ehdf,
                                cidf=cidf,
+                               ecidf=ecidf,
                                csdf=csdf,
                                ecsdf=ecsdf,
                                bdf=bdf

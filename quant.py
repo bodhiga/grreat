@@ -45,6 +45,10 @@ endline_csdf = satisfaction.load('./UNICEF_Tz-_GRREAT_Endline_-_Customer_Satisfa
                                  endline=True)
 
 cidf = influencers.load('./Community_2022_22_09_10_51.sav', endline=False)
+ecidf = influencers.load_endline(
+   female="./UNICEF Tz_GRREAT Endline Community Influencers Tool Female_2024-03-27.xlsx",
+   male="./UNICEF Tz-_GRREAT Endline Community Influencers Tool_Male_2024-03-27.xlsx"
+)
 
 bdf = baseline.load("./GIRLS EMPOWEMENT.dta")
 
@@ -53,6 +57,7 @@ indicator.process(adf=df,
                   hdf=hdf,
                   ehdf=ehdf,
                   cidf=cidf,
+                  ecidf=ecidf,
                   csdf=csdf,
                   ecsdf=endline_csdf,
                   bdf=bdf)
