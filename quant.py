@@ -1,3 +1,5 @@
+import warnings
+
 import os
 import pandas as pd
 import seaborn as sns
@@ -10,6 +12,10 @@ from indicators import adolescents
 from indicators import satisfaction
 from indicators import influencers
 from indicators import baseline
+
+# Suppress FutureWarning messages
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 _output = './output'
 _figures ='./output/figures'
