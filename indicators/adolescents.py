@@ -1782,12 +1782,15 @@ def indicator_1200b(df, endline):
         '128. Ulishawahi kuumwa magonjwa ya zinaa?',
     ]
 
-    _yes = 'Yes' if not endline else 'Ndiyo'
+    _yes = 'Yes' if not endline else 'Ndio'
 
     def _filter(row):
         for ic in selection_criteria:
+            # if endline:
+            #     import pdb; pdb.set_trace()
             if row[ic] == _yes:
                 return 1
+
         return 0
 
     def _score(row):
@@ -1799,6 +1802,9 @@ def indicator_1200b(df, endline):
     # df[selection_criteria].map({"Yes": 1, "No": 0}).any()
     filtered_df = df[df[selection_criteria].apply(_filter, axis=1) == 1]
     results = filtered_df[inclusion_criteria].apply(_score, axis=1)
+
+    # if endline:
+    #     import pdb; pdb.set_trace()
 
     return results
 
