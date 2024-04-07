@@ -761,7 +761,7 @@ def indicator_1000_categories(df, endline):
                 'Nakubali kabisa',
                 'Nakubali kiasi',
             },
-            "77. Je unafahamu/unapata nafasi katika mpango wowote wa kuwawezesha wasichana/wavulana kuwa viongozi au kupata mbinu za uongozi": { 'Ndiyo' }, # yes
+            "77. Je unafahamu/unapata nafasi katika mpango wowote wa kuwawezesha wasichana/wavulana kuwa viongozi au kupata mbinu za uongozi": { 'Ndiyo ' }, # yes
             "81. Ulishawahi kupiga kura kuchagua kiongozi (kama Vile kwenye familia, shuleni au kwenye jamii?)": { 'Ndiyo' }, # yes
             "82. Katika miezi 12 iliyopita ulishawahi kupiga kura ya kumchagua kiongozi (kama vile kwenye familia yako, shulemi au kweney jamii)": { 'Ndiyo' }, # yes
             "84. Je una mawazo yoyote kuhusu namna gani vijana wanaweza kuhusishwa kupanga, kuandaa na kutekeleza huduma bora ya afya katika jamii": { 'Ndiyo' }, # yes
@@ -905,8 +905,8 @@ def indicator_1000_categories(df, endline):
 
     _debug_answer_is_present_at_least_once = set()
 
-    _items = (_empowerment if not endline else _endline_empowerment).items()
-    for empowerment_domain, questions in _items:
+    _items = (_empowerment if not endline else _endline_empowerment)
+    for empowerment_domain, questions in _items.items():
         def _domain_score(row):
             """The GEI score for the domain
             Calculated by counting each valid answer as one point,
@@ -922,7 +922,7 @@ def indicator_1000_categories(df, endline):
                 elif isinstance(v, list): # multi choice
                     already_counted = False
                     for subq in v:
-                        if isinstance(row[subq], str):
+                        if (endline and row[subq] == 1) or (not endline and isinstance(row[subq], str)):
                             _debug_answer_is_present_at_least_once.add(subq)
 
                             if not already_counted:
@@ -935,13 +935,13 @@ def indicator_1000_categories(df, endline):
 
         results[empowerment_domain] = df.apply(_domain_score, axis=1)
 
-    # _debug_single_choice_questions = [sq for domain in _empowerment.values() for sq in domain if isinstance(domain[sq], set)]
-    # _debug_multi_choice_answers = [a for domain in _empowerment.values() for mq in domain.keys() if isinstance(domain[mq], list) for a in domain[mq]]
-    # _debug_all_answers = [a for qs in [_debug_single_choice_questions, _debug_multi_choice_answers] for a in qs]
-    # print('missing:')
-    # _debug_missing = set(_debug_all_answers).difference(_debug_answer_is_present_at_least_once)
-    # print(_debug_missing)
-    # print(df[_debug_missing].head())
+    _debug_single_choice_questions = [sq for domain in _items.values() for sq in domain if isinstance(domain[sq], set)]
+    _debug_multi_choice_answers = [a for domain in _items.values() for mq in domain.keys() if isinstance(domain[mq], list) for a in domain[mq]]
+    _debug_all_answers = [a for qs in [_debug_single_choice_questions, _debug_multi_choice_answers] for a in qs]
+    print('missing:')
+    _debug_missing = set(_debug_all_answers).difference(_debug_answer_is_present_at_least_once)
+    print(_debug_missing)
+    print(df[_debug_missing].head())
     return results
 
 def indicator_1000(df, endline):
@@ -949,10 +949,6 @@ def indicator_1000(df, endline):
 
     # Finally calculate each rows girls empowerment index value by taking the average of the 5 domains
     girls_empowerment_index = results[list(results.keys())].mean(axis=1).apply(lambda x: x / 100)
-
-    if endline:
-        import pdb
-        pdb.set_trace()
 
     return girls_empowerment_index
 
@@ -1022,7 +1018,6 @@ def indicator_1000_v2(df, endline):
         Calculated by counting each valid answer as one point,
         then averaging over the number of questions within the domain"""
 
-        # import pdb; pdb.set_trace()
         score = 0
         for k, v in qs.items():
             if isinstance(v, set): # single choice
@@ -1420,26 +1415,13 @@ def indicator_1000_v2(df, endline):
 
 
 
-_s_n_rights_questions = [
-    'A_Q_157_1', # Physical and pubertal development
-    'A_Q_157_3', # Nutrition
-    'A_Q_157_2', # Menstrual hygiene/ problems
-    'A_Q_157_5', # Oral contraceptive pills
-    'A_Q_157_4', # Anemia
-    'A_Q_157_6', # Comdoms
-    'A_Q_157_8', # Emergency Contraceptive pills
-    'A_Q_157_11', # Antenatal care
-    'A_Q_157_13', # Postpartum care
-    'A_Q_157_12', # Safe delivery
-    'A_Q_157_14', # Cervical cancer
-]
 
 def indicator_1300b_tables(df, endline):
     results = df[_s_n_rights_questions].apply(lambda x: pd.Series.value_counts(x,normalize=True)).sum(axis=1)
     return results
 
 
-def indicator_1300b(df):
+def indicator_1300b(df, endline):
     """Proportion of adolescent girls and boys (10-19 years) who know their SRHR and nutrition rights (disaggregated by sex)
 
     Numerator: Number of adolescent girls and boys (10-19 years) who know their SRHR and nutrition rights by scoring 80% and above.
@@ -1448,28 +1430,32 @@ def indicator_1300b(df):
 
     results = pd.DataFrame()
 
-    # SRHR and Nutrition rights
-    # egen s_n_rights=rowtotal(QN131f QN131g QN131h QN131i QN131j  QN131l QN131n QN131o QN131q QN131r QN131t)
-    # QN131 is Q_157 in our dataset
-    # BUG the composition of this answer seems flawed too
+    if not endline:
+        _s_n_rights_questions = [
+            'A_Q_157_1', # Physical and pubertal development
+            'A_Q_157_3', # Nutrition
+            'A_Q_157_2', # Menstrual hygiene/ problems
+            'A_Q_157_5', # Oral contraceptive pills
+            'A_Q_157_4', # Anemia
+            'A_Q_157_6', # Comdoms
+            'A_Q_157_8', # Emergency Contraceptive pills
+            'A_Q_157_11', # Antenatal care
+            'A_Q_157_13', # Postpartum care
+            'A_Q_157_12', # Safe delivery
+            'A_Q_157_14', # Cervical cancer
+        ]
+        # SRHR and Nutrition rights
+        # egen s_n_rights=rowtotal(QN131f QN131g QN131h QN131i QN131j  QN131l QN131n QN131o QN131q QN131r QN131t)
+        # QN131 is Q_157 in our dataset
+        # BUG the composition of this answer seems flawed too
+        s_n_rights = df[_s_n_rights_questions].apply(lambda x: _count_strings(x, endline), axis=1)
+        s_n_rights_pc = s_n_rights * (100 / len(_s_n_rights_questions))
 
-    # NOTE _s_n_rights_questions is defined globally in this package
-    s_n_rights = df[_s_n_rights_questions].apply(_count_strings, axis=1)
+        s_n_rights_cat = _bloom(s_n_rights_pc)
 
-    # Rights absolute scores into % scores
-    # gen s_n_rights_pc=s_n_rights/11*100
-    s_n_rights_pc = s_n_rights * (100 / len(_s_n_rights_questions))
-    # gen s_n_rights_cat=1 if s_n_rights_pc>=0 & s_n_rights_pc<60
-    # replace s_n_rights_cat=2 if s_n_rights_pc>=60 & s_n_rights_pc<80
-    # replace s_n_rights_cat=3 if s_n_rights_pc>=80 & s_n_rights_pc<=100
-    # lab var s_n_rights_cat "Level of knowledge of SRHR and Nutrition services rights"
-    # lab define s_n_rights_cat 1"Low"2"Moderate"3"High"
-    # lab values s_n_rights_cat s_n_rights_cat
-
-    s_n_rights_cat = _bloom(s_n_rights_pc)
-
-    results = s_n_rights_cat.apply(lambda x: 1 if x == "High" else 0)
-
+        results = s_n_rights_cat.apply(lambda x: 1 if x == "High" else 0)
+    else:
+        results[0] = df['129. Katika jamii yako, umewahi kupata taarifa, ushauri, au huduma za afya zinazohusiana na afya za uzazi na haki zake, pamoja na lishe (kwa mfano shuleni, klabu, mikutano ya kijamii au sehemu nyingine yoyote kwenye jamii?)'].apply(lambda x: 1 if x == 'Ndio' else 0)
     return results
 
 

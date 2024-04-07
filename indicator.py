@@ -36,7 +36,7 @@ def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
                 }
             }
         },
-        "1100a": { # TODO MISSING FROM FACILITY HEALTH LIST
+        "1100a": {
             "dataframe": hdf.drop_duplicates(subset="Q_3"),
             "endline_dataframe": ehdf,
             "func": health.indicator_1100a,
@@ -70,20 +70,20 @@ def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
                 },
             }
         },
-        "1113": {
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "func": adolescents.indicator_1113,
-            "percent": True,
-            "targets": {
-                (): [0.0, 0.0],
-                ("regions",): {
-                    "Mbeya": [0.0, 0.0],
-                    "Songwe": [0.0, 0.0],
-                    "Zanzibar": [0.0, 0.0],
-                },
-            }
-        },
+        # "1113": {
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "func": adolescents.indicator_1113,
+        #     "percent": True,
+        #     "targets": {
+        #         (): [0.0, 0.0],
+        #         ("regions",): {
+        #             "Mbeya": [0.0, 0.0],
+        #             "Songwe": [0.0, 0.0],
+        #             "Zanzibar": [0.0, 0.0],
+        #         },
+        #     }
+        # },
         # "1200a": { # TODO Bit more complicated since it's multiple files
         #     "dataframe": cidf,
         #     "endline_dataframe": cidf, # TODO Replace with endline dataframe
@@ -110,248 +110,246 @@ def get_targets(adf, eadf, hdf, ehdf, cidf, csdf, ecsdf,bdf):
         #         }
         #     }
         # },
-        "1200b": {
-            "dataframe": adf[adf["agegroup"] != "0-9"],
-            "endline_dataframe": eadf[eadf["agegroup"] != "0-9"], # TODO replace with endline dataframe
-            "func": adolescents.indicator_1200b,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0.156, 0.156 * 1.1],
-                    "Songwe": [0.08642, 0.08642 * 1.1],
-                    "Zanzibar": [0.013333333, 0.013333333 * 1.1],
-                },
-                ("sex",): {
-                    "Male": [0.132978723 , 0.132978723 * 1.1],
-                    "Female": [0.086614173 , 0.086614173 * 1.1],
-                },
-                ("agegroup",): {
-                    "10-14": [0.031055901 , 0.031055901 * 1.1],
-                    "15-19": [0.149466192 , 0.149466192 * 1.1],
-                },
-                ("sex","agegroup",): {
-                    "Male": {
-                        "10-14": [0.057142857 , 0.057142857 * 1.1],
-                        "15-19": [0.177966102 , 0.177966102 * 1.1],
-                    },
-                    "Female": {
-                        "10-14": [0.010989011 , 0.010989011 * 1.1],
-                        "15-19": [0.128834356 , 0.128834356 * 1.1],
-                    }
-                },
-            }
-        },
-        "1200b_baseline": {
-            "dataframe": bdf[bdf["agegroup"] != "0-9"],
-            "endline_dataframe": bdf[bdf["agegroup"] != "0-9"], # TODO Replace with endline dataframe
-            "func": baseline.indicator_1200b,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0, 0],
-                    "Songwe": [0, 0],
-                    "Zanzibar": [0, 0],
-                },
-                ("sex",): {
-                    "Male": [0, 0],
-                    "Female": [0, 0],
-                },
-                ("agegroup",): {
-                    "10-14": [0, 0],
-                    "15-19": [0, 0],
-                },
-                ("sex","agegroup",): {
-                    "Male": {
-                        "10-14": [0, 0],
-                        "15-19": [0, 0],
-                    },
-                    "Female": {
-                        "10-14": [0, 0],
-                        "15-19": [0, 0],
-                    }
-                },
-            }
-        },
-        "1210": {
-            "func": adolescents.indicator_1210,
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "percent": True,
-            "targets": {
-                (): [0.764, 0.764 * 1.1],
-                ("sex",): {
-                    "Female": [0.754, 0.754 * 1.1],
-                    "Male": [0.779, 0.779 * 1.1]
-                },
-                ("regions", "sex"): {
-                    "Mbeya": {
-                        "Female": [0.756, 0.756 * 1.1], # NOTE flipped male/female order to match baseline report
-                        "Male": [0.847, 0.847 * 1.1],
-                    },
-                    "Songwe": {
-                        "Female": [0.754, 0.754 * 1.1],
-                        "Male": [0.745, 0.745 * 1.1],
-                    },
-                    "Zanzibar": {
-                        "Female": [0.75, 0.75 * 1.1],
-                        "Male": [0.731, 0.731 * 1.1],
-                    }
-                }
-            }
-        },
-        "1220a": {
-            # NOTE the numbers are very small here,
-            # I don't think neither we, nor the survey has the statistical power
-            # to draw any conclusions from this data
-            "func": adolescents.indicator_1220a,
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0.014, 0.014 * 1.1],
-                    "Songwe": [0.008, 0.008 * 1.1],
-                    "Zanzibar": [0.006, 0.006 * 1.1],
-                },
-                ("regions", "sex"): {
-                    "Mbeya": {
-                        "Male": [0.005, 0.005 * 1.1],
-                        "Female": [0.02, 0.02 * 1.1],
-                    },
-                    "Songwe": {
-                        "Male": [0.005, 0.005 * 1.1],
-                        "Female": [0.01, 0.01 * 1.1],
-                    },
-                    "Zanzibar": {
-                        "Male": [0.0, 0.005 * 1.1],
-                        "Female": [0.009, 0.009 * 1.1],
-                    }
-                }
-            }
-        },
-        "1220a_hiv": {
-            "func": adolescents.indicator_1220hiv,
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0, 0],
-                    "Songwe": [0, 0],
-                    "Zanzibar": [0, 0],
-                },
-                ("regions", "sex"): {
-                    "Mbeya": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                    "Songwe": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                    "Zanzibar": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                },
-            },
-        },
-        "1220a_fp": {
-            "func": adolescents.indicator_1220fp,
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0, 0],
-                    "Songwe": [0, 0],
-                    "Zanzibar": [0, 0],
-                },
-                ("regions", "sex"): {
-                    "Mbeya": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                    "Songwe": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                    "Zanzibar": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                },
-            },
-        },
+        # "1200b": {
+        #     "dataframe": adf[adf["agegroup"] != "0-9"],
+        #     "endline_dataframe": eadf[eadf["agegroup"] != "0-9"],
+        #     "func": adolescents.indicator_1200b,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0.156, 0.156 * 1.1],
+        #             "Songwe": [0.08642, 0.08642 * 1.1],
+        #             "Zanzibar": [0.013333333, 0.013333333 * 1.1],
+        #         },
+        #         ("sex",): {
+        #             "Male": [0.132978723 , 0.132978723 * 1.1],
+        #             "Female": [0.086614173 , 0.086614173 * 1.1],
+        #         },
+        #         ("agegroup",): {
+        #             "10-14": [0.031055901 , 0.031055901 * 1.1],
+        #             "15-19": [0.149466192 , 0.149466192 * 1.1],
+        #         },
+        #         ("sex","agegroup",): {
+        #             "Male": {
+        #                 "10-14": [0.057142857 , 0.057142857 * 1.1],
+        #                 "15-19": [0.177966102 , 0.177966102 * 1.1],
+        #             },
+        #             "Female": {
+        #                 "10-14": [0.010989011 , 0.010989011 * 1.1],
+        #                 "15-19": [0.128834356 , 0.128834356 * 1.1],
+        #             }
+        #         },
+        #     }
+        # },
+        # "1200b_baseline": {
+        #     "dataframe": bdf[bdf["agegroup"] != "0-9"],
+        #     "endline_dataframe": bdf[bdf["agegroup"] != "0-9"], # TODO Replace with endline dataframe
+        #     "func": baseline.indicator_1200b,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0, 0],
+        #             "Songwe": [0, 0],
+        #             "Zanzibar": [0, 0],
+        #         },
+        #         ("sex",): {
+        #             "Male": [0, 0],
+        #             "Female": [0, 0],
+        #         },
+        #         ("agegroup",): {
+        #             "10-14": [0, 0],
+        #             "15-19": [0, 0],
+        #         },
+        #         ("sex","agegroup",): {
+        #             "Male": {
+        #                 "10-14": [0, 0],
+        #                 "15-19": [0, 0],
+        #             },
+        #             "Female": {
+        #                 "10-14": [0, 0],
+        #                 "15-19": [0, 0],
+        #             }
+        #         },
+        #     }
+        # },
+        # "1210": {
+        #     "func": adolescents.indicator_1210,
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "percent": True,
+        #     "targets": {
+        #         (): [0.764, 0.764 * 1.1],
+        #         ("sex",): {
+        #             "Female": [0.754, 0.754 * 1.1],
+        #             "Male": [0.779, 0.779 * 1.1]
+        #         },
+        #         ("regions", "sex"): {
+        #             "Mbeya": {
+        #                 "Female": [0.756, 0.756 * 1.1], # NOTE flipped male/female order to match baseline report
+        #                 "Male": [0.847, 0.847 * 1.1],
+        #             },
+        #             "Songwe": {
+        #                 "Female": [0.754, 0.754 * 1.1],
+        #                 "Male": [0.745, 0.745 * 1.1],
+        #             },
+        #             "Zanzibar": {
+        #                 "Female": [0.75, 0.75 * 1.1],
+        #                 "Male": [0.731, 0.731 * 1.1],
+        #             }
+        #         }
+        #     }
+        # },
+        # "1220a": {
+        #     # NOTE the numbers are very small here,
+        #     # I don't think neither we, nor the survey has the statistical power
+        #     # to draw any conclusions from this data
+        #     "func": adolescents.indicator_1220a,
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0.014, 0.014 * 1.1],
+        #             "Songwe": [0.008, 0.008 * 1.1],
+        #             "Zanzibar": [0.006, 0.006 * 1.1],
+        #         },
+        #         ("regions", "sex"): {
+        #             "Mbeya": {
+        #                 "Male": [0.005, 0.005 * 1.1],
+        #                 "Female": [0.02, 0.02 * 1.1],
+        #             },
+        #             "Songwe": {
+        #                 "Male": [0.005, 0.005 * 1.1],
+        #                 "Female": [0.01, 0.01 * 1.1],
+        #             },
+        #             "Zanzibar": {
+        #                 "Male": [0.0, 0.005 * 1.1],
+        #                 "Female": [0.009, 0.009 * 1.1],
+        #             }
+        #         }
+        #     }
+        # },
+        # "1220a_hiv": {
+        #     "func": adolescents.indicator_1220hiv,
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0, 0],
+        #             "Songwe": [0, 0],
+        #             "Zanzibar": [0, 0],
+        #         },
+        #         ("regions", "sex"): {
+        #             "Mbeya": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #             "Songwe": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #             "Zanzibar": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #         },
+        #     },
+        # },
+        # "1220a_fp": {
+        #     "func": adolescents.indicator_1220fp,
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0, 0],
+        #             "Songwe": [0, 0],
+        #             "Zanzibar": [0, 0],
+        #         },
+        #         ("regions", "sex"): {
+        #             "Mbeya": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #             "Songwe": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #             "Zanzibar": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #         },
+        #     },
+        # },
 
-        "1220a_nutri": {
-            "func": adolescents.indicator_1220nutri,
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0, 0],
-                    "Songwe": [0, 0],
-                    "Zanzibar": [0, 0],
-                },
-                ("regions", "sex"): {
-                    "Mbeya": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                    "Songwe": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                    "Zanzibar": {
-                        "Male": [0, 0],
-                        "Female": [0, 0],
-                    },
-                },
-            },
-        },
+        # "1220a_nutri": {
+        #     "func": adolescents.indicator_1220nutri,
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0, 0],
+        #             "Songwe": [0, 0],
+        #             "Zanzibar": [0, 0],
+        #         },
+        #         ("regions", "sex"): {
+        #             "Mbeya": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #             "Songwe": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #             "Zanzibar": {
+        #                 "Male": [0, 0],
+        #                 "Female": [0, 0],
+        #             },
+        #         },
+        #     },
+        # },
 
-        "1220ab": {
-            # NOTE the numbers are very small here,
-            # I don't think neither we, nor the survey has the statistical power
-            # to draw any conclusions from this data
-            "func": adolescents.indicator_1220ab,
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "percent": True,
-            "targets": {
-                (): [0.147, 0.147 * 1.1],
-                ("regions",): {
-                    "Mbeya": [0.146, 0.146 * 1.1],
-                    "Songwe": [0.171, 0.171 * 1.1],
-                    "Zanzibar": [0.112, 0.112 * 1.1],
-                },
-                ("sex",): {
-                    "Male": [0.116, 0.116 * 1.1],
-                    "Female": [0.167, 0.167 * 1.1],
-                },
-            }
-        },
-        "1300b": {
-            "func": adolescents.indicator_1300b,
-            "dataframe": adf,
-            "endline_dataframe": eadf,
-            "percent": True,
-            "targets": {
-                ("regions",): {
-                    "Mbeya": [0.051, 0.051 * 1.1],
-                    "Songwe": [0.034, 0.034 * 1.1],
-                    "Zanzibar": [0.0, 0.1], # NOTE set in line with Songwe
-                },
-                ("sex",): {
-                    "Male": [0, 0],
-                    "Female": [0, 0],
-                },
-            }
-        },
-        # "1310": {}, # NOTE Not included here, it's a qual target
-        # "1320": {}, # NOTE Not included here it's a qual target
+        # "1220ab": {
+        #     # NOTE the numbers are very small here,
+        #     # I don't think neither we, nor the survey has the statistical power
+        #     # to draw any conclusions from this data
+        #     "func": adolescents.indicator_1220ab,
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "percent": True,
+        #     "targets": {
+        #         (): [0.147, 0.147 * 1.1],
+        #         ("regions",): {
+        #             "Mbeya": [0.146, 0.146 * 1.1],
+        #             "Songwe": [0.171, 0.171 * 1.1],
+        #             "Zanzibar": [0.112, 0.112 * 1.1],
+        #         },
+        #         ("sex",): {
+        #             "Male": [0.116, 0.116 * 1.1],
+        #             "Female": [0.167, 0.167 * 1.1],
+        #         },
+        #     }
+        # },
+        # "1300b": {
+        #     "func": adolescents.indicator_1300b,
+        #     "dataframe": adf,
+        #     "endline_dataframe": eadf,
+        #     "percent": True,
+        #     "targets": {
+        #         ("regions",): {
+        #             "Mbeya": [0.051, 0.051 * 1.1],
+        #             "Songwe": [0.034, 0.034 * 1.1],
+        #             "Zanzibar": [0.0, 0.1], # NOTE set in line with Songwe
+        #         },
+        #         ("sex",): {
+        #             "Male": [0, 0],
+        #             "Female": [0, 0],
+        #         },
+        #     }
+        # },
 }
 
 def _target_gen(indict, acc = None):
@@ -510,8 +508,6 @@ def dashboard(adf, eadf, hdf, cidf, csdf, ecsdf, bdf, ehdf): # TODO
             "1300": ["1300b"],
             "1210": ["1210"],
             "1220": ["1220a"],
-            #"1310": ["1310"],
-            #"1320": ["1320"],
         }
 
         _expected_results_description = {
@@ -598,7 +594,7 @@ def dashboard(adf, eadf, hdf, cidf, csdf, ecsdf, bdf, ehdf): # TODO
         adolescents.indicator_1300b_tables(adf)
 
 
-def gei_breakdown(df, endline):
+def gei_breakdown(df, edf):
     dimensions = {
         "Self-perception and personal changes": {
             'key': 'self_perception',
@@ -781,16 +777,20 @@ def gei_breakdown(df, endline):
         return df.apply(_categorise)
 
     output = pd.DataFrame()
-    results = adolescents.indicator_1000_v2(df, endline)
+    results = adolescents.indicator_1000_v2(df, endline=False)
+    eresults = adolescents.indicator_1000_v2(edf, endline=True)
 
     for d, v in dimensions.items():
         key = v['key']
         for disagg, values in v['baseline'].items():
             for value in values:
                 output[key] = _bloom(results[key])
+                eoutput[key] = _bloom(eresults[key])
 
     output['regions'] = df['regions']
     output['agegroup'] = df['agegroup']
+    eoutput['regions'] = edf['regions']
+    eoutput['agegroup'] = edf['agegroup']
 
     output2 = []
     for d, v in dimensions.items():

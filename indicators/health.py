@@ -38,9 +38,11 @@ def load(file_path, endline):
                 _names_to_regions[v] = k
 
         facility_name = df["Q_3"]
+        df['facility_name'] = df['Q_3']
         df['regions'] = facility_name.map(_names_to_regions)
     else:
         df['regions'] = df["1. Mkoa/Eneo la utafiti"]
+        df['facility_name'] = df['6. Jina la kituo cha afya']
 
     return df
 
@@ -103,3 +105,10 @@ def indicator_1100a(df, endline):
     results = srhr_stands_cat
 
     return results
+
+def table_1100a(df, endline, out):
+    table_1100a = pd.concat([indicator_1100a(df, endline), df], axis=1)
+    table_1100a = table_1100a[["regions", "facility_name", 0]]
+
+    out_path = './output/' + out
+    table_1100a.to_excel(out_path)

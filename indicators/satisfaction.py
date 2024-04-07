@@ -151,8 +151,6 @@ def indicator_1100b(df, endline):
             if qs[k] == v:
                 score += 1
         score = (100 * score) / len(qs)
-        # print("Scoring row {endline}: {score}".format(endline=endline, score=score))
-
         return score
 
     data = df[(_questions if not endline else _questions_endline).keys()]
@@ -169,13 +167,3 @@ def indicator_1100b(df, endline):
     # tab overall_quality_cat
 
     return results
-
-# def indicator_1113(df):
-#     """Proportion of adolescents that agree that quality of adolescent responsive SRHR and nutrition information and services at the facility
-#     and community levels have improved (disaggregated by sex/age)
-
-#     Numerator: Number of adolescent girls and boys (10-19 years) who agree that the quality of adolescent responsive SRHR and nutrition information services at the facility level has improved.
-#     Denominator: Total number of sampled adolescent girls and boys aged 10-19 years who accessed the services at each facility."""
-
-#     # NOTE NEW ONE
-#     return results
