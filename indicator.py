@@ -172,33 +172,33 @@ def get_targets(adf, eadf, hdf, ehdf, cidf, ecidf, csdf, ecsdf,bdf):
         #         },
         #     }
         # },
-        # "1210": {
-        #     "func": adolescents.indicator_1210,
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "percent": True,
-        #     "targets": {
-        #         (): [0.764, 0.764 * 1.1],
-        #         ("sex",): {
-        #             "Female": [0.754, 0.754 * 1.1],
-        #             "Male": [0.779, 0.779 * 1.1]
-        #         },
-        #         ("regions", "sex"): {
-        #             "Mbeya": {
-        #                 "Female": [0.756, 0.756 * 1.1], # NOTE flipped male/female order to match baseline report
-        #                 "Male": [0.847, 0.847 * 1.1],
-        #             },
-        #             "Songwe": {
-        #                 "Female": [0.754, 0.754 * 1.1],
-        #                 "Male": [0.745, 0.745 * 1.1],
-        #             },
-        #             "Zanzibar": {
-        #                 "Female": [0.75, 0.75 * 1.1],
-        #                 "Male": [0.731, 0.731 * 1.1],
-        #             }
-        #         }
-        #     }
-        # },
+        "1210": {
+            "func": adolescents.indicator_1210,
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "percent": True,
+            "targets": {
+                (): [0.764, 0.764 * 1.1],
+                ("sex",): {
+                    "Female": [0.754, 0.754 * 1.1],
+                    "Male": [0.779, 0.779 * 1.1]
+                },
+                ("regions", "sex"): {
+                    "Mbeya": {
+                        "Female": [0.756, 0.756 * 1.1], # NOTE flipped male/female order to match baseline report
+                        "Male": [0.847, 0.847 * 1.1],
+                    },
+                    "Songwe": {
+                        "Female": [0.754, 0.754 * 1.1],
+                        "Male": [0.745, 0.745 * 1.1],
+                    },
+                    "Zanzibar": {
+                        "Female": [0.75, 0.75 * 1.1],
+                        "Male": [0.731, 0.731 * 1.1],
+                    }
+                }
+            }
+        },
         # "1220a": {
         #     # NOTE the numbers are very small here,
         #     # I don't think neither we, nor the survey has the statistical power
