@@ -17,6 +17,9 @@ And the baseline data:
 
 * GIRLS EMPOWEMENT.dta
 
+## Build the docker image
+
+`docker build -t quant .`
 
 ## Running
 

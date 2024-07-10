@@ -1,6 +1,6 @@
 import pandas as pd
 
-def indicator_1200b(df):
+def indicator_1200b(df, endline):
     df = df[(df["age"] >= 10) & (df["age"] <= 19)]
     # Calculation of indicator 1200b: As suggested by PEP and as agreed by Bodhi in the excel matrix, if changing the denominator makes more sense, can’t we do that and mention in the inception report that this is a change since baseline for improvement of the indicator? While we do want comparability, we shouldn’t go ahead with an indicator that doesn’t make sense. But I would also request you to consider the feasibility of collecting the data for denominator as suggested by PEP.
     # Table 3 Indicatori1200b: The proposed calculation for this indicator is not appropriate. Two thoughts: (1) FP is relevant as a proxy of SRHR service utilization, but how is nutrition measured in this study? Is the assumption that nutrition services are bundled with antenatal care visits? This is a big assumption, especially given the participants. (2) There is potentially a big problem with the denominator -- only those adolescents who are either pregnant (or accompanying a pregnant partner, potentially), or those who are sexually active or planning to be would access ANC and FP services to begin with. If you have the entire population of adolescents as the denominator, this indicator is not going to mean much. Would you not want to know this instead: among those who had a reason to access ANC or FP, what % actually sought the services?
