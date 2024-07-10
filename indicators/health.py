@@ -46,7 +46,8 @@ def load(file_path, endline):
 
     return df
 
-def indicator_1100a(df, endline):
+
+def indicator_1100a_score(df, endline):
     """Proportion of health facilities meeting national adolescent sexual and reproductive health standards in the selected districts in Mainland and Zanzibar
 
     Numerator: Number of health facilities meeting national adolescent sexual and reproductive health standards by scoring 80% and above.
@@ -101,13 +102,15 @@ def indicator_1100a(df, endline):
     # (Bloom), but the baseline actually just did anyone who
     # scored 7/7 (6 and 7 are both over 80%)
 
-    srhr_stands_cat = srhr_stands.apply(lambda x: 1 if x >= 7 else 0)
-    results = srhr_stands_cat
+    results = srhr_stands
 
     return results
 
+def indicator_1100a(df, endline):
+    return indicator_1100a_score(df, endline).apply(lambda x: 1 if x >= 7 else 0)
+
 def table_1100a(df, endline, out):
-    table_1100a = pd.concat([indicator_1100a(df, endline), df], axis=1)
+    table_1100a = pd.concat([indicator_1100a_score(df, endline), df], axis=1)
     table_1100a = table_1100a[["regions", "facility_name", 0]]
 
     out_path = './output/' + out

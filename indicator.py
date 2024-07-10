@@ -199,157 +199,156 @@ def get_targets(adf, eadf, hdf, ehdf, cidf, ecidf, csdf, ecsdf,bdf):
                 }
             }
         },
-        # "1220a": {
-        #     # NOTE the numbers are very small here,
-        #     # I don't think neither we, nor the survey has the statistical power
-        #     # to draw any conclusions from this data
-        #     "func": adolescents.indicator_1220a,
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "percent": True,
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0.014, 0.014 * 1.1],
-        #             "Songwe": [0.008, 0.008 * 1.1],
-        #             "Zanzibar": [0.006, 0.006 * 1.1],
-        #         },
-        #         ("regions", "sex"): {
-        #             "Mbeya": {
-        #                 "Male": [0.005, 0.005 * 1.1],
-        #                 "Female": [0.02, 0.02 * 1.1],
-        #             },
-        #             "Songwe": {
-        #                 "Male": [0.005, 0.005 * 1.1],
-        #                 "Female": [0.01, 0.01 * 1.1],
-        #             },
-        #             "Zanzibar": {
-        #                 "Male": [0.0, 0.005 * 1.1],
-        #                 "Female": [0.009, 0.009 * 1.1],
-        #             }
-        #         }
-        #     }
-        # },
-        # "1220a_hiv": {
-        #     "func": adolescents.indicator_1220hiv,
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "percent": True,
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0, 0],
-        #             "Songwe": [0, 0],
-        #             "Zanzibar": [0, 0],
-        #         },
-        #         ("regions", "sex"): {
-        #             "Mbeya": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #             "Songwe": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #             "Zanzibar": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #         },
-        #     },
-        # },
-        # "1220a_fp": {
-        #     "func": adolescents.indicator_1220fp,
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "percent": True,
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0, 0],
-        #             "Songwe": [0, 0],
-        #             "Zanzibar": [0, 0],
-        #         },
-        #         ("regions", "sex"): {
-        #             "Mbeya": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #             "Songwe": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #             "Zanzibar": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #         },
-        #     },
-        # },
+        "1220a": {
+            # NOTE the numbers are very small here,
+            # I don't think neither we, nor the survey has the statistical power
+            # to draw any conclusions from this data
+            "func": adolescents.indicator_1220a,
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "percent": True,
+            "targets": {
+                ("regions",): {
+                    "Mbeya": [0.014, 0.014 * 1.1],
+                    "Songwe": [0.008, 0.008 * 1.1],
+                    "Zanzibar": [0.006, 0.006 * 1.1],
+                },
+                ("regions", "sex"): {
+                    "Mbeya": {
+                        "Male": [0.005, 0.005 * 1.1],
+                        "Female": [0.02, 0.02 * 1.1],
+                    },
+                    "Songwe": {
+                        "Male": [0.005, 0.005 * 1.1],
+                        "Female": [0.01, 0.01 * 1.1],
+                    },
+                    "Zanzibar": {
+                        "Male": [0.0, 0.005 * 1.1],
+                        "Female": [0.009, 0.009 * 1.1],
+                    }
+                }
+            }
+        },
+        "1220a_hiv": {
+            "func": adolescents.indicator_1220hiv,
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "percent": True,
+            "targets": {
+                ("regions",): {
+                    "Mbeya": [0, 0],
+                    "Songwe": [0, 0],
+                    "Zanzibar": [0, 0],
+                },
+                ("regions", "sex"): {
+                    "Mbeya": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                    "Songwe": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                    "Zanzibar": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                },
+            },
+        },
+        "1220a_fp": {
+            "func": adolescents.indicator_1220fp,
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "percent": True,
+            "targets": {
+                ("regions",): {
+                    "Mbeya": [0, 0],
+                    "Songwe": [0, 0],
+                    "Zanzibar": [0, 0],
+                },
+                ("regions", "sex"): {
+                    "Mbeya": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                    "Songwe": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                    "Zanzibar": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                },
+            },
+        },
 
-        # "1220a_nutri": {
-        #     "func": adolescents.indicator_1220nutri,
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "percent": True,
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0, 0],
-        #             "Songwe": [0, 0],
-        #             "Zanzibar": [0, 0],
-        #         },
-        #         ("regions", "sex"): {
-        #             "Mbeya": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #             "Songwe": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #             "Zanzibar": {
-        #                 "Male": [0, 0],
-        #                 "Female": [0, 0],
-        #             },
-        #         },
-        #     },
-        # },
-
-        # "1220ab": {
-        #     # NOTE the numbers are very small here,
-        #     # I don't think neither we, nor the survey has the statistical power
-        #     # to draw any conclusions from this data
-        #     "func": adolescents.indicator_1220ab,
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "percent": True,
-        #     "targets": {
-        #         (): [0.147, 0.147 * 1.1],
-        #         ("regions",): {
-        #             "Mbeya": [0.146, 0.146 * 1.1],
-        #             "Songwe": [0.171, 0.171 * 1.1],
-        #             "Zanzibar": [0.112, 0.112 * 1.1],
-        #         },
-        #         ("sex",): {
-        #             "Male": [0.116, 0.116 * 1.1],
-        #             "Female": [0.167, 0.167 * 1.1],
-        #         },
-        #     }
-        # },
-        # "1300b": {
-        #     "func": adolescents.indicator_1300b,
-        #     "dataframe": adf,
-        #     "endline_dataframe": eadf,
-        #     "percent": True,
-        #     "targets": {
-        #         ("regions",): {
-        #             "Mbeya": [0.051, 0.051 * 1.1],
-        #             "Songwe": [0.034, 0.034 * 1.1],
-        #             "Zanzibar": [0.0, 0.1], # NOTE set in line with Songwe
-        #         },
-        #         ("sex",): {
-        #             "Male": [0, 0],
-        #             "Female": [0, 0],
-        #         },
-        #     }
-        # },
+        "1220a_nutri": {
+            "func": adolescents.indicator_1220nutri,
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "percent": True,
+            "targets": {
+                ("regions",): {
+                    "Mbeya": [0, 0],
+                    "Songwe": [0, 0],
+                    "Zanzibar": [0, 0],
+                },
+                ("regions", "sex"): {
+                    "Mbeya": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                    "Songwe": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                    "Zanzibar": {
+                        "Male": [0, 0],
+                        "Female": [0, 0],
+                    },
+                },
+            },
+        },
+        "1220ab": {
+            # NOTE the numbers are very small here,
+            # I don't think neither we, nor the survey has the statistical power
+            # to draw any conclusions from this data
+            "func": adolescents.indicator_1220ab,
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "percent": True,
+            "targets": {
+                (): [0.147, 0.147 * 1.1],
+                ("regions",): {
+                    "Mbeya": [0.146, 0.146 * 1.1],
+                    "Songwe": [0.171, 0.171 * 1.1],
+                    "Zanzibar": [0.112, 0.112 * 1.1],
+                },
+                ("sex",): {
+                    "Male": [0.116, 0.116 * 1.1],
+                    "Female": [0.167, 0.167 * 1.1],
+                },
+            }
+        },
+        "1300b": {
+            "func": adolescents.indicator_1300b,
+            "dataframe": adf,
+            "endline_dataframe": eadf,
+            "percent": True,
+            "targets": {
+                ("regions",): {
+                    "Mbeya": [0.051, 0.051 * 1.1],
+                    "Songwe": [0.034, 0.034 * 1.1],
+                    "Zanzibar": [0.0, 0.1], # NOTE set in line with Songwe
+                },
+                ("sex",): {
+                    "Male": [0, 0],
+                    "Female": [0, 0],
+                },
+            }
+        },
 }
 
 def _target_gen(indict, acc = None):
@@ -441,7 +440,7 @@ def process(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf):
             if len(cols) >= 2:
                 hue = cols[1]
 
-            g, _axes = plot.subplot() # TODO Needs a 2?
+            g, _axes = plot.subplot()
             _axes[0].set_title("Baseline")
             _axes[1].set_title("Midline")
             _axes[2].set_title("Endline")
@@ -461,24 +460,35 @@ def process(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf):
                 baseline_df["indicator"] = baseline_df["indicator"].apply(lambda x: x * 100)
                 all_targets = [[t1 * 100, t2 * 100] for [t1, t2] in all_targets]
 
+            def _add_labels(ax, mul=1, suffix=''):
+                ax.set(ylabel="")
+                #ax = fig.facet_axis(0, 0)
+                for container in ax.containers:
+                    labels = [f'{(v.get_height() * mul):.2f}' + suffix for v in container]
+                    ax.bar_label(container, labels=labels, label_type='edge', fontsize=8)
+
             baseline = plot.category(baseline_df, x, "indicator",
                               title='Indicator {}'.format(name),
                                      hue=hue, ax=_axes[0],
                                      targets=all_targets)
+            mul = (0.01 if indicator["percent"] else 1)
+            suffix =  ('%' if indicator ["percent"] else '')
+            _add_labels(_axes[0], mul=mul, suffix=suffix)
+
             midline = plot.category(result2, x, "indicator",
                               title='Indicator {}'.format(name),
                                     hue=hue,
                                     ax=_axes[1],
                                     targets=all_targets)
+
+            _add_labels(_axes[1], mul=mul, suffix=suffix)
+
             endline = plot.category(eresult2, x, "indicator",
                                     title='Inidicator {}'.format(name),
                                     hue=hue, ax=_axes[2],
                                     targets=all_targets,
                                     )
-
-            _axes[0].set(ylabel="")
-            _axes[1].set(ylabel="")
-            _axes[2].set(ylabel="")
+            _add_labels(_axes[2], mul=mul, suffix=suffix)
 
             figure_name = '_'.join(['indicator_{}'.format(name)] + list(cols))
             figure_path = './output/figures/{}.png'.format(figure_name)
@@ -505,7 +515,7 @@ def dashboard(adf, eadf, hdf, cidf, ecidf, csdf, ecsdf, bdf, ehdf): # TODO
             "1000": ["1000c"],
             "1100": ["1100a", "1100b"],
             "1113": ["1113"],
-            "1200": ["1200a", "1200b", "1200b_baseline"],
+            "1200": ["1200a", "1200b"],
             "1300": ["1300b"],
             "1210": ["1210"],
             "1220": ["1220a"],
@@ -515,7 +525,7 @@ def dashboard(adf, eadf, hdf, cidf, ecidf, csdf, ecsdf, bdf, ehdf): # TODO
             "1000": "Adolescent girls in Mbeya and Songwe regions of Tanzania Mainland and in Zanzibar are able to realize their sexual and reproductive health rights (SRHR) and nutrition rights.",
         }
 
-        def _disaggs(f, df, disaggregations):
+        def _disaggs(f, df, edf, disaggregations):
             results = []
             for cols in disaggregations.keys():
                 values = disaggregations[cols]
@@ -531,23 +541,26 @@ def dashboard(adf, eadf, hdf, cidf, ecidf, csdf, ecsdf, bdf, ehdf): # TODO
                     if baseline <= pmf_target:
                         alternative = 'greater'
 
-
                     filtered_df = df
+                    filtered_edf = edf
                     for idx, x in enumerate(seq[:-1]):
                         col = cols[idx]
                         filtered_df = filtered_df.loc[filtered_df[col] == x]
+                        filtered_edf = filtered_edf.loc[filtered_edf[col] == x]
 
                     disagg_by_values = ", ".join(seq[:-1])
-                    result = f(filtered_df)
-                    pmf_test_results = analysis.ttest(result, pmf_target, alternative=alternative)
+                    result = f(filtered_df, endline=False)
+                    eresult = f(filtered_edf, endline=True)
+                    pmf_test_results = analysis.ttest(eresult, pmf_target, alternative=alternative)
                     midline_test_results = analysis.ttest(result, midline_target, alternative=alternative)
-                    mean = result.mean()
-                    # mean = 0
+                    midline_mean = result.mean()
+                    mean = eresult.mean()
 
                     results.append({
                         "name": name,
                         "disagg_by_values": disagg_by_values,
                         "value": mean,
+                        "midline_value": midline_mean,
                         "pmf_target": pmf_target,
                         "midline_target": midline_target,
                         "baseline_value": baseline,
@@ -556,16 +569,16 @@ def dashboard(adf, eadf, hdf, cidf, ecidf, csdf, ecsdf, bdf, ehdf): # TODO
                     })
             return results
 
-
         def _indicators(indicators):
             results = []
             for indicator in indicators:
                 targets = _targets[indicator]["targets"]
                 f = _targets[indicator]["func"]
                 df = _targets[indicator]["dataframe"]
+                edf = _targets[indicator]["endline_dataframe"]
                 results.append({
                     "name": indicator,
-                    "disaggregations": _disaggs(f, df, targets),
+                    "disaggregations": _disaggs(f, df, edf, targets),
                 })
 
             return results
@@ -575,7 +588,6 @@ def dashboard(adf, eadf, hdf, cidf, ecidf, csdf, ecsdf, bdf, ehdf): # TODO
                 "expected_results": outcome,
                 "indicators": _indicators(indicators)
             })
-
 
         d2 = pd.json_normalize(dashboard, record_path=['indicators', 'disaggregations'], meta=['expected_results', ['indicators', 'name']])
         d2[[
@@ -587,13 +599,13 @@ def dashboard(adf, eadf, hdf, cidf, ecidf, csdf, ecsdf, bdf, ehdf): # TODO
             "pmf_target",
             "baseline_value",
             "value",
+            "midline_value",
             "pmf_p",
             "midline_p",
         ]].to_excel('./output/dashboard.xlsx')
 
-
-        adolescents.indicator_1300b_tables(adf)
-
+        # TODO
+        # adolescents.indicator_1300b_tables(adf)
 
 def gei_breakdown(df, edf):
     dimensions = {
@@ -778,6 +790,7 @@ def gei_breakdown(df, edf):
         return df.apply(_categorise)
 
     output = pd.DataFrame()
+    eoutput = pd.DataFrame()
     results = adolescents.indicator_1000_v2(df, endline=False)
     eresults = adolescents.indicator_1000_v2(edf, endline=True)
 
@@ -788,10 +801,11 @@ def gei_breakdown(df, edf):
                 output[key] = _bloom(results[key])
                 eoutput[key] = _bloom(eresults[key])
 
+    output = output.assign(study='midline')
+    eoutput = eoutput.assign(study='endline')
+    output = pd.concat([output, eoutput]) # TODO
     output['regions'] = df['regions']
     output['agegroup'] = df['agegroup']
-    eoutput['regions'] = edf['regions']
-    eoutput['agegroup'] = edf['agegroup']
 
     output2 = []
     for d, v in dimensions.items():
@@ -811,17 +825,34 @@ def gei_breakdown(df, edf):
         output2.append(header)
         output2.append(pd.concat([ct, ct2], axis=1))
 
-        # baseline_df = pd.DataFrame(data=v['baseline']['regions'])
-
         x = 'regions'
         y = key
-        plotdata = (output.assign(study='midline') .groupby(by=[x, 'study'])[y].value_counts(normalize=True) .mul(100) .rename('percent') .reset_index())
-        plotdata['study'] = pd.Categorical(plotdata['study'], categories=['baseline', 'midline', 'overall'], ordered=True)
+        plotdata = (output.groupby(by=[x, 'study'])[y].value_counts(normalize=True) .mul(100) .rename('percent') .reset_index())
+        plotdata['study'] = pd.Categorical(plotdata['study'], categories=['baseline', 'midline', 'endline'], ordered=True)
         plotdata[key] = pd.Categorical(plotdata[key], categories=['Empowered', 'Disempowered', 'Most disempowered'], ordered=True)
 
-        output.assign(study='midline').groupby(by=['study']).value_counts(normalize=True).mul(100).rename('percent').reset_index().to_excel('./output/gei_brekdown_overall.xlsx')
+        overall_breakdown = output.groupby(by=['study'])[y].value_counts(normalize=True).rename('percent').reset_index()
+
+        overall_breakdown.to_excel('./output/gei_breakdown_overall.xlsx')
 
         overall = v['baseline']['overall']
+
+        overall_breakdown = overall_breakdown.append({'study': 'baseline', key: 'Empowered', 'percent': overall[0] }, ignore_index=True)
+        overall_breakdown = overall_breakdown.append({'study': 'baseline', key: 'Disempowered', 'percent': overall[1]}, ignore_index=True)
+        overall_breakdown = overall_breakdown.append({'study': 'baseline', key: 'Most disempowered', 'percent': overall[2]}, ignore_index=True)
+
+        sns_plot = sns.catplot(overall_breakdown,x=key,y='percent', hue='study', errorbar=None, kind='bar', hue_order=['baseline', 'midline', 'endline'], order=['Empowered', 'Disempowered', 'Most disempowered'])
+        ax = sns_plot.facet_axis(0, 0)
+        for container in ax.containers:
+            labels = [f'{(v.get_height() * 100):.1f}%' for v in container]
+            ax.bar_label(container, labels=labels, label_type='edge', fontsize=8)
+
+        sns_plot.set(xlabel=d)
+
+        fig =sns_plot.figure
+
+        figure_name="./output/figures/gei_breakdown_all_{key}.png".format(region=region, key=key)
+        fig.savefig(figure_name,dpi=300)
 
         for disagg in ['regions', 'agegroup']:
             for region, bl in v['baseline'][disagg].items():
@@ -835,7 +866,7 @@ def gei_breakdown(df, edf):
 
             for region, bl in v['baseline'][disagg].items():
                 filtered_data = plotdata[plotdata[disagg] == region]
-                sns_plot = sns.catplot(plotdata[plotdata[disagg] == region],x=key,y='percent', hue='study', errorbar=None, kind='bar', hue_order=['baseline', 'midline', 'overall'], order=['Empowered', 'Disempowered', 'Most disempowered'])
+                sns_plot = sns.catplot(plotdata[plotdata[disagg] == region],x=key,y='percent', hue='study', errorbar=None, kind='bar', hue_order=['baseline', 'midline', 'endline'], order=['Empowered', 'Disempowered', 'Most disempowered'])
                 sns_plot.set(xlabel=d)
 
                 fig =sns_plot.figure

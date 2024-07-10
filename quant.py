@@ -66,7 +66,7 @@ health.table_1100a(hdf, endline=False, out='table_1100a_midline.xlsx')
 health.table_1100a(ehdf, endline=True, out='table_1100a_endline.xlsx')
 
 # print('Community Influencers survey, breakdown')
-# analysis.breakdown(cidf, ['sex', 'regions'])
+# analysis.breakdown(ecidf, ['sex', 'regions'])
 # print()
 
 # print('Customer Satisfaction survey, breakdown')
@@ -74,49 +74,56 @@ health.table_1100a(ehdf, endline=True, out='table_1100a_endline.xlsx')
 # print()
 
 
-# ## TO GENERATE THE CHARACTERISTICS TABLE
-# def characteristics_table(df, endline):
-#    _rows = [
-#       'agegroup',
-#       'sex',
-#       'schooling',
-#       'education',
-#       'occupation',
-#    ]
+## TO GENERATE THE CHARACTERISTICS TABLE
+def characteristics_table(df, endline):
+   _rows = [
+      'agegroup',
+      'sex',
+      'schooling',
+      'education',
+      'occupation',
+   ]
 
-#    _row_labels = [
-#       'Age Group',
-#       'Sex',
-#       'Still schooling',
-#       'Highest Achieved Level of Education',
-#       'Occupation',
-#    ]
+   _row_labels = [
+      'Age Group',
+      'Sex',
+      'Still schooling',
+      'Highest Achieved Level of Education',
+      'Occupation',
+   ]
 
-#    _columns = ['sex', 'regions']
-#    filtered_df = df[df['agegroup'].isin(['10-14', '15-19'])]
+   _columns = ['sex', 'regions']
+   filtered_df = df
+   # filtered_df = df[df['agegroup'].isin(['10-14', '15-19'])] # TODO
 
-#    def _aggfunc(x):
-#       count = len(x)
-#       percent = 100 * count / len(filtered_df)
-#       return "{n} ({p:.1f}%)".format(n=count, p=percent)
+   def _aggfunc(x):
+      count = len(x)
+      percent = 100 * count / len(filtered_df)
+      return "{n} ({p:.1f}%)".format(n=count, p=percent)
 
-#    for idx, r in enumerate(_rows):
-#       result = pd.concat(
-#          [pd.concat([pd.DataFrame([[]], columns=[], index=[_row_labels[idx]])] + [pd.crosstab(filtered_df[r], filtered_df[c], values=filtered_df["sex"], aggfunc=_aggfunc, margins=(cidx + 1 == len(_columns))) for cidx, c in enumerate(_columns)], axis=1)])
-#       result.to_excel('./output/characteristics_{study}_{r}.xlsx'.format(study=('midline' if not endline else 'endline'), r=r))
+   for idx, r in enumerate(_rows):
+      result = pd.concat(
+         [pd.concat([pd.DataFrame([[]], columns=[], index=[_row_labels[idx]])] + [pd.crosstab(filtered_df[r], filtered_df[c], values=filtered_df["sex"], aggfunc=_aggfunc, margins=(cidx + 1 == len(_columns))) for cidx, c in enumerate(_columns)], axis=1)])
+      result.to_excel('./output/characteristics_{study}_{r}.xlsx'.format(study=('midline' if not endline else 'endline'), r=r))
 
 # characteristics_table(df, endline=False)
 # characteristics_table(eadf, endline=True)
+# import pdb; pdb.set_trace()
 
-# # indicator.dashboard(adf=df, eadf=eadf, hdf=hdf, ehdf=ehdf, cidf=cidf, csdf=csdf, ecsdf=endline_csdf, bdf=bdf) # TODO
+indicator.dashboard(adf=df, eadf=eadf, hdf=hdf, ehdf=ehdf, cidf=cidf, ecidf=ecidf, csdf=csdf, ecsdf=endline_csdf, bdf=bdf) # TODO
 
-# adf = df
-# indicator.gei_breakdown(adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))])
+adf = df
+indicator.gei_breakdown(
+   adf.loc[(adf["sex"] == "Female") & (adf['agegroup'].isin(['10-14', '15-19']))],
+   eadf.loc[(eadf["sex"] == "Female") & (eadf['agegroup'].isin(['10-14', '15-19']))],
+
+                        )
 
 # demos = indicator.demographics(filtered_df)
 # demos.to_excel('./output/demographics.xlsx')
 
 
+# TODO
 # print('Adolescents survey, breakdown')
 # analysis.breakdown(filtered_df, ['sex', 'regions',
 #                         ['Q_3', 'Q_4', 'Q_5', 'Q_6'], # district, ward, village etc.

@@ -879,9 +879,9 @@ def indicator_1000_categories(df, endline):
                 '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inawezesha wasichana kupata watoto wenye afya hapo baadae', # Column IH # TODO NOTE CHECK THIS
                 '108. Kuna faida gani ya kusubiri kuolewa na kupata Mimba ya kwanza kwa msichana mpaka katika muda muafaka?/Inmuepusha msichana na magonjwa ya zinaa pamoja na HIV, na magonjwa ya saratani', # Column II
             ],
-            "109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?": [
-                '109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?/Kituo cha Afya', # health centre (Kituo cha Afya) Column IM
-            ],
+            '109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?/Kituo cha Afya': {
+                "1",
+            },
             "120. Lishe bora ni muhimu kwa wasichana toka muda anazaliwa ili iweze kuwasaidia kupata watoto wenye afya hapo baadaye": {
                 'Nakubaliana kabisa',
                 'Nakubaliana kiasi',
@@ -914,6 +914,7 @@ def indicator_1000_categories(df, endline):
 
             score = 0
             for k, v in questions.items():
+
                 if isinstance(v, set): # single choice
                     if row[k] in v:
                         score += 1
@@ -938,7 +939,7 @@ def indicator_1000_categories(df, endline):
     _debug_single_choice_questions = [sq for domain in _items.values() for sq in domain if isinstance(domain[sq], set)]
     _debug_multi_choice_answers = [a for domain in _items.values() for mq in domain.keys() if isinstance(domain[mq], list) for a in domain[mq]]
     _debug_all_answers = [a for qs in [_debug_single_choice_questions, _debug_multi_choice_answers] for a in qs]
-    print('missing:')
+    print('missing2:')
     _debug_missing = set(_debug_all_answers).difference(_debug_answer_is_present_at_least_once)
     print(_debug_missing)
     print(df[_debug_missing].head())
@@ -972,7 +973,7 @@ def _total_acc(row, endline):
         '19. Unamiliki, ni mwanachama au ungependa kuwa mwanachama wa taasisi yoyote kati ya hizi/Mengine'
     ]
 
-    x = _count_strings(row[(_q if not endline else _q_endine)], endline)
+    x = _count_strings(row[(_q if not endline else _q_endline)], endline)
     if x > 0 and x <= 5: # BUG?
         return 1
     return 0
@@ -995,7 +996,7 @@ def _grl_ecoemp3(row, endline):
     return 0
 
 def _anemia_preve(row, endline):
-    x = _count_strings(row[(_anemia_prevention_answers if not endline else _anemia_prevention_answers_endline)])
+    x = _count_strings(row[_anemia_prevention_answers(endline)], endline)
     if x >= 3 and x <=6:
         return 1
     return 0
@@ -1205,9 +1206,9 @@ def indicator_1000_v2(df, endline):
             'T_Q_82_5': {'Both'},
         },
         "knowledge_and_nutrition": {
-            "anemia_knowledge": _anemia_knowledge,
-            "anemia_preve": _anemia_preve,
-            "facility_cat": _facility_cat,
+            "anemia_knowledge": lambda x: _anemia_knowledge(x, endline),
+            "anemia_preve": lambda x: _anemia_preve(x, endline),
+            "facility_cat": lambda x: _facility_cat(x, endline),
             "Q_143": { 'Strongly agree' },
         },
         "support_from_social_network": {
@@ -1215,11 +1216,11 @@ def indicator_1000_v2(df, endline):
         },
         "control_over_body": {
             # HIV
-            "hiv": _hiv_trans_scores2,
+            "hiv": lambda x: _hiv_trans_scores2(x, endline),
             # SRHR Knowledge
             'Q_125': ['Q_125_O1'],
             'Q_129': { 'Four' },
-            "preq_prevent": _preq_prevent,
+            "preq_prevent": lambda x: _preq_prevent(x, endline),
             'Q_152': { 'Yes' },
             'Q_154': { 'Yes' },
             'Q_135': { 'Yes' },
@@ -1256,7 +1257,7 @@ def indicator_1000_v2(df, endline):
                 'Sikubali kiasi',
                 'Sikubali kabisa',
             },
-            "50. Ninahisi nina sifa kadhaa nzuri5": {
+            "50. Ninahisi nina sifa kadhaa nzuri": {
                 'Nakubali sana',
                 'Nakubali kiasi',
             },
@@ -1360,7 +1361,7 @@ def indicator_1000_v2(df, endline):
             # HIV
             "hiv": lambda x: _hiv_trans_scores2(x, endline),
             # SRHR Knowledge
-            '109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?': ['109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?/Kituo cha Afya'], #was selected if response is 1
+            '109. Ikitokea una uhitaji wa huduma za afya ya uzazi (mfano huduma za mama mjamzito, huduma ya kujifungua, huduma ya baada ya kujifungua, uzazi wa mpango, huduma ya baada ya mimba kuharibika, upimaji wa saratani ya shingo ya kizazi), Utaenda wapi?': {'Kituo cha Afya'},
             '111. Mama mjamzito anatakiwa kuhudhuria walau mara ngapi katika kituo cha huduma za afya?': { 'Nne' },
             "preq_prevent": lambda x: _preq_prevent(x, endline),
             '127. Ulishawahi kupima maambukizi ya VVU?': { 'Ndio' },
@@ -1455,7 +1456,8 @@ def indicator_1300b(df, endline):
 
         results = s_n_rights_cat.apply(lambda x: 1 if x == "High" else 0)
     else:
-        results[0] = df['129. Katika jamii yako, umewahi kupata taarifa, ushauri, au huduma za afya zinazohusiana na afya za uzazi na haki zake, pamoja na lishe (kwa mfano shuleni, klabu, mikutano ya kijamii au sehemu nyingine yoyote kwenye jamii?)'].apply(lambda x: 1 if x == 'Ndio' else 0)
+        results[0] = _bloom(df['129. Katika jamii yako, umewahi kupata taarifa, ushauri, au huduma za afya zinazohusiana na afya za uzazi na haki zake, pamoja na lishe (kwa mfano shuleni, klabu, mikutano ya kijamii au sehemu nyingine yoyote kwenye jamii?)'].apply(lambda x: 100 if x == 'Ndio' else 0)).apply(lambda x: 1 if x == "High" else 0)
+
     return results
 
 
@@ -1507,7 +1509,7 @@ def _anemia_knowledge(row, endline):
     row = row[_anemia_knowledge_correct_answers(endline)]
     result = 0
     for key, val in row.items():
-        if isinstance(val, str):
+        if isinstance(val, str) or (endline and val == 1):
             result = 1
     return result
 
@@ -1728,7 +1730,6 @@ def indicator_1220cat(df, endline):
     results = breakdown['nutri_know_scores'] + breakdown['fp_know_scores'] + breakdown['hiv_trans_scores']
     results = 100 * results / (11 + 7 + 5)
 
-
     # ****Generate HIV, Nutrition and FP knowledge level
     # gen hiv_nutr_fp_know_cat=1 if hiv_nutr_fp_know_pc<60
     # replace hiv_nutr_fp_know_cat=2 if hiv_nutr_fp_know_pc>=60 & hiv_nutr_fp_know_pc<80
@@ -1786,8 +1787,6 @@ def indicator_1200b(df, endline):
 
     def _filter(row):
         for ic in selection_criteria:
-            # if endline:
-            #     import pdb; pdb.set_trace()
             if row[ic] == _yes:
                 return 1
 
@@ -1802,9 +1801,6 @@ def indicator_1200b(df, endline):
     # df[selection_criteria].map({"Yes": 1, "No": 0}).any()
     filtered_df = df[df[selection_criteria].apply(_filter, axis=1) == 1]
     results = filtered_df[inclusion_criteria].apply(_score, axis=1)
-
-    # if endline:
-    #     import pdb; pdb.set_trace()
 
     return results
 

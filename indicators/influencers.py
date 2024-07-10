@@ -29,10 +29,9 @@ def load(file_path, endline):
     df['age'] = df['Q_10']
     df['agegroup'] = df['age'].map(_age_to_agegroup)
 
-    df['sex'] = df["Q_20"] # ENDLINE Sex is taken from the file name
-        # TODO
+    df['sex'] = df["Q_20"]
+    df['gender_support'] = df['Q_3']
 
-    df['gender_support'] = df['Q_3'] # ENDLINE This is taken from the file
     return df
 
 def load_endline(female, male):
