@@ -464,15 +464,19 @@ def process(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf):
                 ax.set(ylabel="")
                 #ax = fig.facet_axis(0, 0)
                 for container in ax.containers:
-                    labels = [f'{(v.get_height() * mul):.2f}' + suffix for v in container]
-                    ax.bar_label(container, labels=labels, label_type='edge', fontsize=8)
+                    if suffix == '%':
+                        labels = [f'{(v.get_height() * mul):.1f}' + suffix for v in container]
+                        ax.bar_label(container, labels=labels, label_type='edge', padding=-8, color ='white', fontsize=6.8)
+                    else:
+                        labels = [f'{(v.get_height() * mul):.2f}' + suffix for v in container]
+                        ax.bar_label(container, labels=labels, label_type='edge', padding=-9, color ='white', fontsize=8.5)
 
             baseline = plot.category(baseline_df, x, "indicator",
                               title='Indicator {}'.format(name),
                                      hue=hue, ax=_axes[0],
                                      targets=all_targets)
-            mul = (0.01 if indicator["percent"] else 1)
-            suffix =  ('%' if indicator ["percent"] else '')
+            mul = (1 if indicator["percent"] else 1)
+            suffix =  ('%' if indicator["percent"] else '')
             _add_labels(_axes[0], mul=mul, suffix=suffix)
 
             midline = plot.category(result2, x, "indicator",
@@ -492,7 +496,7 @@ def process(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf):
 
             figure_name = '_'.join(['indicator_{}'.format(name)] + list(cols))
             figure_path = './output/figures/{}.png'.format(figure_name)
-            g.savefig(figure_path,dpi=300)
+            g.savefig(figure_path,dpi=500)
 
             if(len(cols) >= 2):
                 ctdf = table.crosstab(eresult2, "indicator", cols[0], cols[1:])
@@ -841,18 +845,18 @@ def gei_breakdown(df, edf):
         overall_breakdown = overall_breakdown.append({'study': 'baseline', key: 'Disempowered', 'percent': overall[1]}, ignore_index=True)
         overall_breakdown = overall_breakdown.append({'study': 'baseline', key: 'Most disempowered', 'percent': overall[2]}, ignore_index=True)
 
-        sns_plot = sns.catplot(overall_breakdown,x=key,y='percent', hue='study', errorbar=None, kind='bar', hue_order=['baseline', 'midline', 'endline'], order=['Empowered', 'Disempowered', 'Most disempowered'])
+        sns_plot = sns.catplot(overall_breakdown,x=key,y='percent', hue='study', errorbar=None, kind='bar', hue_order=['baseline', 'midline', 'endline'], order=['Empowered', 'Disempowered', 'Most disempowered'], alpha=.9)
         ax = sns_plot.facet_axis(0, 0)
         for container in ax.containers:
             labels = [f'{(v.get_height() * 100):.1f}%' for v in container]
-            ax.bar_label(container, labels=labels, label_type='edge', fontsize=8)
+            ax.bar_label(container, labels=labels, label_type='edge', fontsize=8.5)
 
         sns_plot.set(xlabel=d)
 
         fig =sns_plot.figure
 
         figure_name="./output/figures/gei_breakdown_all_{key}.png".format(region=region, key=key)
-        fig.savefig(figure_name,dpi=300)
+        fig.savefig(figure_name,dpi=500)
 
         for disagg in ['regions', 'agegroup']:
             for region, bl in v['baseline'][disagg].items():
@@ -866,13 +870,13 @@ def gei_breakdown(df, edf):
 
             for region, bl in v['baseline'][disagg].items():
                 filtered_data = plotdata[plotdata[disagg] == region]
-                sns_plot = sns.catplot(plotdata[plotdata[disagg] == region],x=key,y='percent', hue='study', errorbar=None, kind='bar', hue_order=['baseline', 'midline', 'endline'], order=['Empowered', 'Disempowered', 'Most disempowered'])
+                sns_plot = sns.catplot(plotdata[plotdata[disagg] == region],x=key,y='percent', hue='study', errorbar=None, kind='bar', hue_order=['baseline', 'midline', 'endline'], order=['Empowered', 'Disempowered', 'Most disempowered'], alpha=.9)
                 sns_plot.set(xlabel=d)
 
                 fig =sns_plot.figure
 
                 figure_name="./output/figures/gei_breakdown_{region}_{key}.png".format(region=region, key=key)
-                fig.savefig(figure_name,dpi=300)
+                fig.savefig(figure_name,dpi=500)
                 filtered_data.to_excel('./output/gei_breakdown_{region}_{key}.xlsx'.format(region=region, key=key))
 
     gei_breakdown_result = pd.concat(output2)
