@@ -466,10 +466,10 @@ def process(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf):
                 for container in ax.containers:
                     if suffix == '%':
                         labels = [f'{(v.get_height() * mul):.1f}' + suffix for v in container]
-                        ax.bar_label(container, labels=labels, label_type='edge', padding=-8, color ='white', fontsize=6.8)
+                        ax.bar_label(container, labels=labels, label_type='edge', padding=-8, color ='white', fontsize=6.5, fontweight='bold')
                     else:
                         labels = [f'{(v.get_height() * mul):.2f}' + suffix for v in container]
-                        ax.bar_label(container, labels=labels, label_type='edge', padding=-9, color ='white', fontsize=8.5)
+                        ax.bar_label(container, labels=labels, label_type='edge', padding=-9, color ='white', fontsize=7.3, fontweight='bold')
 
             baseline = plot.category(baseline_df, x, "indicator",
                               title='Indicator {}'.format(name),
