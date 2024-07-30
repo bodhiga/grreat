@@ -467,6 +467,7 @@ def process(adf,eadf,hdf,ehdf,cidf,ecidf,csdf,ecsdf,bdf):
                     if suffix == '%':
                         labels = [f'{(v.get_height() * mul):.1f}' + suffix for v in container]
                         ax.bar_label(container, labels=labels, label_type='edge', padding=-8, color ='white', fontsize=6.5, fontweight='bold')
+                        ax.set_ylim(0, 100)
                     else:
                         labels = [f'{(v.get_height() * mul):.2f}' + suffix for v in container]
                         ax.bar_label(container, labels=labels, label_type='edge', padding=-9, color ='white', fontsize=7.3, fontweight='bold')
@@ -850,6 +851,7 @@ def gei_breakdown(df, edf):
         for container in ax.containers:
             labels = [f'{(v.get_height() * 100):.1f}%' for v in container]
             ax.bar_label(container, labels=labels, label_type='edge', fontsize=8.5)
+            ax.set_ylim(0, 1)
 
         sns_plot.set(xlabel=d)
 
